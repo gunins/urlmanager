@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>JS Demo</title>
+    <script src="../../node_modules/requirejs/require.js"></script>
+    <script>
+        require(['demo'], function (router) {
+            router.start();
+
+            function onHashChange() {
+                var match = window.location.href.match(/#(.*)$/);
+                router.trigger(match ? match[1] : '');
+            };
+            window.addEventListener('hashchange', onHashChange, false);
+            onHashChange();
+        });
+    </script>
+</head>
+<body>
+<div>
+    <ul>
+        <li><a href="#/levelA">Level A</a></li>
+        <li><a href="#/levelB">Level B</a></li>
+        <li><a href="#/levelA/levelC">Level C</a></li>
+    </ul>
+</div>
+</body>
+</html>

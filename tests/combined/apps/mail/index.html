@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>TS Demo</title>
+    <style>
+        body {
+            padding: 1em 10px;
+            font: 12px Arial;
+        }
+
+        h1 {
+            margin: 0;
+            padding: 0;
+            font-size: 13px;
+        }
+
+        ul {
+            margin: 0;
+        }
+
+        .menu {
+            background: #eee;
+            padding: 0.3em 10px;
+        }
+
+        .mailApp {
+            background: yellow;
+        }
+
+        .settings {
+            background: greenyellow;
+            padding: 1em 10px;
+        }
+
+        .tetris {
+            background: aquamarine;
+            padding: 1em 10px;
+        }
+    </style>
+    <!--<script src="../../.cdt/require.config.js"></script>-->
+    <script src="../../../../.cdt/jscore/require/require.js"></script>
+</head>
+<body>
+<div id="Container"></div>
+<script>
+    require([
+        '../../../../src/router/RegRouter',
+        './Mail'
+    ], function (RegRouter, Mail) {
+
+        var router = new RegRouter;
+        router.map(Mail.map);
+        router.start();
+
+        window.addEventListener('hashchange', onHashChange.bind(this), false);
+        onHashChange();
+
+        function onHashChange() {
+            var match = window.location.href.match(/#(.*)$/);
+            router.trigger(match ? match[1] : '');
+        }
+
+    });
+</script>
+</body>
+</html>

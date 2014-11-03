@@ -1,0 +1,13 @@
+{
+  "name": "router",
+  "version": "0.0.1",
+  "private": true,
+  "devDependencies": {
+    "grunt": "latest",
+    "grunt-typescript": "*",
+    "grunt-contrib-connect": "latest"
+  },
+  "dependencies": {
+    "requirejs": "^2.1.15"
+  }
+}
