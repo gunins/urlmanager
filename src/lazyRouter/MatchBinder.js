@@ -4,7 +4,7 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-define(['../coreRouter/MatchBinder', './RegMatchBinding'], function (MatchBinder, RegMatchBinding) {
+define(['../router/MatchBinder', './MatchBinding'], function (MatchBinder, RegMatchBinding) {
     var RegMatchBinder = (function (_super) {
         __extends(RegMatchBinder, _super);
         function RegMatchBinder(fragment, query, command) {
@@ -17,7 +17,7 @@ define(['../coreRouter/MatchBinder', './RegMatchBinding'], function (MatchBinder
             return new RegMatchBinder();
         };
         RegMatchBinder.prototype.getMatchBinding = function (pattern) {
-            return new RegMatchBinding(pattern);
+            return new MatchBinding(pattern);
         };
         RegMatchBinder.prototype.run = function () {
             this.command.execute(this);

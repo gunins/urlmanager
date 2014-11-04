@@ -51,11 +51,11 @@
 <div id="Container"></div>
 <script>
     require([
-        '../../src/router/RegRouter',
+        '../../src/router/Router',
         'apps/main'
-    ], function (RegRouter, Apps) {
+    ], function (Router, Apps) {
 
-        var router = new RegRouter;
+        var router = new Router;
         var apps = new Apps(router);
         apps.run();
 

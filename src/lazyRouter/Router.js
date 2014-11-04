@@ -4,7 +4,7 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-define(['../coreRouter/Router', './RegMatchBinder'], function (Router, MyMatchBinder) {
+define(['../router/Router', './MatchBinder'], function (Router, MyMatchBinder) {
     var MyRouter = (function (_super) {
         __extends(MyRouter, _super);
         function MyRouter() {

@@ -1,4 +1,12 @@
-define(['./MatchBinder'], function (MatchBinder) {
+/*globals define*/
+define([
+    './MatchBinder'
+], function (MatchBinder) {
+    'use strict';
+    function isEmpty(obj) {
+        return Object.keys(obj).length === 0;
+    }
+
     function parseParams(value) {
         try {
             return decodeURIComponent(value.replace(/\+/g, ' '));
@@ -17,8 +25,24 @@ define(['./MatchBinder'], function (MatchBinder) {
         });
     }
 
+    function getLocation(fragment, isQuery, params, location) {
+        var current = params.root.substring(0, params.root.length - location.length), newQuery;
+        fragment = fragment || '';
+        if (isQuery === true) {
+            newQuery = this.serialize(params.query);
+        }
+        else if (isQuery === false) {
+            newQuery = '';
+        }
+        else {
+            newQuery = this.serialize(isQuery);
+        }
+        return current + fragment + (newQuery.length === 0 ? '' : '?' + newQuery);
+    }
+
     function Router() {
         this.root = this.getBinder();
+        this.bindings = [];
     }
 
     Router.prototype.getBinder = function () {
@@ -58,7 +82,7 @@ define(['./MatchBinder'], function (MatchBinder) {
     Router.prototype.onBinding = function (location, params, binding) {
         var fragment = binding.getFragment(location);
         var subBinder = binding.getSubBinder();
-        if (subBinder) {
+        if (subBinder && subBinder.bindings && subBinder.bindings.length > 0) {
             this.find(subBinder, fragment, params);
         }
         this.runHandler(location, params, binding);
@@ -72,28 +96,43 @@ define(['./MatchBinder'], function (MatchBinder) {
         return str.join("&");
     };
     Router.prototype.runHandler = function (location, params, binding) {
-        var _this = this;
-        var Handler = binding.getHandler();
-        if (Handler) {
+        var notValid = [];
+        this.bindings.forEach(function (binder) {
+            var binderLocation = binder.location;
+            if (params.root.substring(0, binderLocation.length) !== binderLocation) {
+                var handler = binder.getLeaveHandler();
+                var args = [];
+                this.applyHandler(handler, args, params, location);
+                notValid.push(binder);
+            }
+        }.bind(this));
+
+        notValid.forEach(function (binder) {
+            this.bindings.splice(this.bindings.indexOf(binder), 1);
+        }.bind(this))
+
+        if (this.bindings.indexOf(binding) === -1) {
+            var handler = binding.getHandler();
             var args = binding.extractParams(location);
-            Handler.apply(this, args.concat({
+            this.applyHandler(handler, args, params, location);
+            this.bindings.push(binding);
+        }
+        if (!isEmpty(params.query)) {
+            var handler = binding.getQueryHandler();
+            var args = [];
+            this.applyHandler(handler, args, params, location);
+        }
+
+    };
+    Router.prototype.applyHandler = function (handler, args, params, location) {
+        if (handler) {
+            handler.apply(this, args.concat({
                 getQuery: function () {
                     return params.query;
                 },
                 getLocation: function (fragment, isQuery) {
-                    var current = params.root.substring(0, params.root.length - location.length), newQuery;
-                    fragment = fragment || '';
-                    if (isQuery === true) {
-                        newQuery = _this.serialize(params.query);
-                    }
-                    else if (isQuery === false) {
-                        newQuery = '';
-                    }
-                    else {
-                        newQuery = _this.serialize(isQuery);
-                    }
-                    return current + fragment + (newQuery.length === 0 ? '' : '?' + newQuery);
-                }
+                    return getLocation.call(this, fragment, isQuery, params, location)
+                }.bind(this)
             }));
         }
     };

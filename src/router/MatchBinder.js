@@ -1,0 +1,30 @@
+define(['./MatchBinding'], function (MatchBinding) {
+    function MatchBinder(location) {
+        this.bindings = [];
+        this.location = location || '';
+    }
+
+    MatchBinder.prototype.match = function (pattern, mapHandler) {
+        var binding = this.getMatchBinding(pattern, this.location);
+        this.bindings.push(binding);
+        if (mapHandler) {
+            var subBinder = this.getSubBinder(this.location + pattern);
+            binding.setSubBinder(subBinder);
+            mapHandler(subBinder.match.bind(subBinder));
+        }
+        return binding;
+    };
+    MatchBinder.prototype.getSubBinder = function (pattern) {
+        return new MatchBinder(pattern);
+    };
+    MatchBinder.prototype.getMatchBinding = function (pattern, root) {
+        return new MatchBinding(pattern, root);
+    };
+    MatchBinder.prototype.filter = function (location) {
+        return this.bindings.filter(function (binding) {
+            return binding.test(location);
+        });
+    };
+
+    return MatchBinder;
+});

@@ -45,11 +45,11 @@
 <div id="Container"></div>
 <script>
     require([
-        '../../../../src/router/RegRouter',
+        '../../../../src/lazyRouter/Router',
         './Mail'
     ], function (RegRouter, Mail) {
 
-        var router = new RegRouter;
+        var router = new Router;
         router.map(Mail.map);
         router.start();
 
