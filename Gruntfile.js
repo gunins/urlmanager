@@ -13,23 +13,11 @@ module.exports = function (grunt) {
                 target: 'http://localhost:8000/tests/ts/',
                 open: true
             }
-        },
-        typescript: {
-            dist: {
-                src: ['./src/**/*.ts'],
-                options: {
-                    module: 'amd',
-                    target: 'es3',
-                    sourceMap: false,
-                    declaration: false
-                }
-            }
         }
     });
 
-    grunt.loadNpmTasks('grunt-typescript');
     grunt.loadNpmTasks('grunt-contrib-connect');
 
-    grunt.registerTask('default', ['typescript']);
+    grunt.registerTask('default');
 
 };
