@@ -1,8 +1,7 @@
 define(["require", "exports", './Compose', './InboxRegion'], function (require, exports, Compose, InboxRegion) {
     function MailApp(builder) {
-        console.log(builder.getLocation('/compose'))
         var compose = builder.getLocation('/compose');
-        var inbox = builder.getLocation('/inbox/', false);
+        var inbox = builder.getLocation('/inbox', false);
         var query = builder.getQuery();
 
         var container = document.getElementById('Container');
