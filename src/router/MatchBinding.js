@@ -1,8 +1,16 @@
 define(function () {
     function MatchBinding(pattern, location) {
-        this.pattern = pattern;
-        this.location = location + pattern;
-        var route = pattern.replace(MatchBinding.ESCAPE_PARAM, '\\$&')
+
+        if (location === '') {
+            this.pattern = location = pattern.replace(/^\(\/\)/g, '').replace(/^\/|$/g, '');
+
+        } else {
+            this.pattern = pattern;
+            location = (location + pattern);
+        }
+        this.location = location.replace(/\((.*?)\)/g, '$1').replace(/^\/|$/g, '');
+
+        var route = this.pattern.replace(MatchBinding.ESCAPE_PARAM, '\\$&')
             .replace(MatchBinding.OPTIONAL_PARAM, '(?:$1)?')
             .replace(MatchBinding.NAMED_PARAM, function (match, optional) {
                 return optional ? match : '([^\/]+)';

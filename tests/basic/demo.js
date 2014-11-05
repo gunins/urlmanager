@@ -2,7 +2,14 @@ define(['../../src/router/Router'], function (Router) {
 
     var router = new Router;
     router.match(function (match) {
-        match('/levelB').to(function () {
+
+        match('(/)levelB', function(match){
+
+            match('/:a(/:b)').to(function(level, param){
+                console.log('leveloptC', level, param)
+            });
+
+        }).to(function () {
             console.log('levelB Triggered')
         });
 

@@ -69,8 +69,9 @@ define([
                     }
                 });
             }
-            this.find(this.root, parts[0], {
-                root: parts[0],
+            var loc = parts[0].replace(/^\/|$/g, '');
+            this.find(this.root, loc, {
+                root: loc,
                 query: query
             });
         }
