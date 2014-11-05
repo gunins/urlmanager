@@ -81,12 +81,12 @@ define([
         bindings.forEach(this.onBinding.bind(this, location, params));
     };
     Router.prototype.onBinding = function (location, params, binding) {
+        this.runHandler(location, params, binding);
         var fragment = binding.getFragment(location);
         var subBinder = binding.getSubBinder();
         if (subBinder && subBinder.bindings && subBinder.bindings.length > 0) {
             this.find(subBinder, fragment, params);
         }
-        this.runHandler(location, params, binding);
     };
     Router.prototype.serialize = function (obj) {
         var str = [];
@@ -101,7 +101,6 @@ define([
         this.bindings.forEach(function (binder) {
             var binderLocation,
                 fragment;
-            //TODO: need add for dynamic params support
             if (binder.pattern.indexOf(':') === -1) {
                 binderLocation = binder.location;
                 fragment = params.root.substring(0, binderLocation.length) !== binderLocation;

@@ -5,10 +5,13 @@ define(['../../src/router/Router'], function (Router) {
 
         match('(/)levelB', function(match){
 
-            match('/:a/:b', function(match){
+            match('/:a', function(match){
 
-                match('/vasja').to(function(){
-                    console.log('vasja');
+                match('/table').to(function(){
+                    console.log('table');
+                });
+                match('/list').to(function(){
+                    console.log('list');
                 });
 
             }).to(function(level, param){
