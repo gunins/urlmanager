@@ -1,6 +1,5 @@
 define(function () {
     function MatchBinding(pattern, location) {
-
         if (location === '') {
             this.pattern = location = pattern.replace(/^\(\/\)/g, '').replace(/^\/|$/g, '');
 
@@ -35,11 +34,13 @@ define(function () {
         return this.patternRegExp.test(location);
     };
     MatchBinding.prototype.getFragment = function (location) {
-        var subLocation = this.applyParams();
+        var subLocation = this.applyParams(location);
         return location.replace(subLocation, '');
     };
-    MatchBinding.prototype.applyParams = function () {
-        return this.pattern;
+    MatchBinding.prototype.applyParams = function (location) {
+        var matches  = this.pattern.replace(/\((.*?)\)/g, '$1').split('/');
+        var matches2  = location.split('/');
+        return matches2.splice(0, matches.length).join('/');
     };
     MatchBinding.prototype.extractParams = function (fragment) {
         var params = this.patternRegExp.exec(fragment).slice(1);

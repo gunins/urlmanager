@@ -104,13 +104,13 @@ define([
             //TODO: need add for dynamic params support
             if (binder.pattern.indexOf(':') === -1) {
                 binderLocation = binder.location;
-                fragment = params.root.substring(0, binderLocation.length)!==binderLocation;
+                fragment = params.root.substring(0, binderLocation.length) !== binderLocation;
 
             } else {
                 binderLocation = binder.location.replace(binder.pattern.replace(/\((.*?)\)/g, '$1'), binder.prevLoc);
-                fragment = params.root.replace(binderLocation, '') !== '';
+                var parsed = params.root.replace(binderLocation, '');
+                fragment = parsed.split('/')[0]!=='';
             }
-
 
             if (fragment) {
                 var handler = binder.getLeaveHandler();
@@ -127,7 +127,9 @@ define([
         if (this.bindings.indexOf(binding) === -1) {
             var handler = binding.getHandler();
             var args = binding.extractParams(location);
+
             binding.prevLoc = location;
+
             this.applyHandler(handler, args, params, location);
             this.bindings.push(binding);
         }
