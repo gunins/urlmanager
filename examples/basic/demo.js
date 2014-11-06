@@ -1,4 +1,4 @@
-define(['../../src/router/Router'], function (Router) {
+define(['router/Router'], function (Router) {
 
     var router = new Router;
     router.match(function (match) {
@@ -45,7 +45,6 @@ define(['../../src/router/Router'], function (Router) {
         //Another Route
         match('/levelA', function (match) {
             match('/levelC').to(function () {
-                console.log(arguments)
                 console.log('levelC dash triggered');
                 //    Triggering when Leave Route
             }).leave(function () {

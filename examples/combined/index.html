@@ -39,6 +39,18 @@
         }
     </style>
     <script src="../../node_modules/requirejs/require.js"></script>
+    <script>
+        require.config({
+            baseUrl:'./',
+            paths:{
+//                prod link
+//                router:'../../dist/router'
+//                dev link
+                router:'../../src/router'
+
+            }
+        });
+    </script>
 </head>
 <body>
 <div class="menu">
@@ -51,7 +63,7 @@
 <div id="Container"></div>
 <script>
     require([
-        '../../src/router/Router',
+        'router/Router',
         'apps/main'
     ], function (Router, Apps) {
 

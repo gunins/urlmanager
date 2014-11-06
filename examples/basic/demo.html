@@ -5,6 +5,16 @@
     <title>JS Demo</title>
     <script src="../../node_modules/requirejs/require.js"></script>
     <script>
+        require.config({
+            baseUrl:'./',
+            paths:{
+//                prod link
+//                router:'../../dist/router'
+//                dev link
+                router:'../../src/router'            }
+        });
+    </script>
+    <script>
         require(['demo'], function (router) {
             router.start();
 

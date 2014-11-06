@@ -1,0 +1,16 @@
+{
+  "name": "router",
+  "version": "0.1.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gunins/router"
+  },
+  "dependencies": {
+    "requirejs": "^2.1.15"
+  },
+  "ignore":[
+    "docs",
+    "examples",
+    "src"
+  ]
+}
