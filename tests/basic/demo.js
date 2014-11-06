@@ -52,6 +52,8 @@ define(['../../src/router/Router'], function (Router) {
             });
         }).to(function () {
             console.log('levelA triggered')
+        }).to(function () {
+            console.log('levelA chained triggered')
         });
 
     });

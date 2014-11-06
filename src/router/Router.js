@@ -168,16 +168,18 @@ define([
         }
 
     };
-    Router.prototype.applyHandler = function (handler, args, params, location) {
-        if (handler) {
-            handler.apply(this, args.concat({
-                getQuery: function () {
-                    return params.query;
-                },
-                getLocation: function (fragment, isQuery) {
-                    return getLocation.call(this, fragment, isQuery, params, location)
-                }.bind(this)
-            }));
+    Router.prototype.applyHandler = function (handlers, args, params, location) {
+        if (handlers && handlers.length > 0) {
+            handlers.forEach(function (handler) {
+                handler.apply(this, args.concat({
+                    getQuery: function () {
+                        return params.query;
+                    },
+                    getLocation: function (fragment, isQuery) {
+                        return getLocation.call(this, fragment, isQuery, params, location)
+                    }.bind(this)
+                }));
+            }.bind(this));
         }
     };
     Router.prototype.start = function () {

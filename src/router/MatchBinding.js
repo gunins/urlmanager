@@ -15,18 +15,21 @@ define(function () {
             }).replace(MatchBinding.SPLAT_PARAM, '(.*?)');
 
         this.patternRegExp = new RegExp('^' + route);
+        this.routeHandler = [];
+        this.leaveHandler =[];
+        this.queryHandler = [];
     }
 
     MatchBinding.prototype.to = function (routeHandler) {
-        this.routeHandler = routeHandler;
+        this.routeHandler.push(routeHandler);
         return this;
     };
     MatchBinding.prototype.leave = function (leaveHandler) {
-        this.leaveHandler = leaveHandler;
+        this.leaveHandler.push(leaveHandler);
         return this;
     };
     MatchBinding.prototype.query = function (queryHandler) {
-        this.queryHandler = queryHandler;
+        this.queryHandler.push(queryHandler);
         return this;
     };
     MatchBinding.prototype.test = function (location) {
