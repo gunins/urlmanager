@@ -3,6 +3,31 @@ define([
     './MatchBinder'
 ], function (MatchBinder) {
     'use strict';
+    // attach the .equals method to Array's prototype to call it on any array
+    Array.prototype.equals = function (array) {
+        // if the other array is a falsy value, return
+        if (!array)
+            return false;
+
+        // compare lengths - can save a lot of time
+        if (this.length != array.length)
+            return false;
+
+        for (var i = 0, l = this.length; i < l; i++) {
+            // Check if we have nested arrays
+            if (this[i] instanceof Array && array[i] instanceof Array) {
+                // recurse into the nested arrays
+                if (!this[i].equals(array[i]))
+                    return false;
+            }
+            else if (this[i] != array[i]) {
+                // Warning - two different object instances will never be equal: {x:20} != {x:20}
+                return false;
+            }
+        }
+        return true;
+    };
+
     function isEmpty(obj) {
         return Object.keys(obj).length === 0;
     }
@@ -69,11 +94,39 @@ define([
                     }
                 });
             }
-            var loc = parts[0].replace(/^\/|$/g, '');
-            this.find(this.root, loc, {
-                root: loc,
-                query: query
-            });
+            var loc = parts[0].replace(/^\/|$/g, ''),
+                params = {
+                    root: loc,
+                    query: query
+                },
+                notValid = [],
+                matched = false;
+
+            this.bindings.forEach(function (binder) {
+                var fragment,
+                    pattern = binder.pattern.replace(/\((.*?)\)/g, '$1').replace(/^\//, '').split('/'),
+                    binderLocation = binder.location.split('/'),
+                    prevLoc = binder.prevLoc.replace(/^\//, '').split('/'),
+                    checkSegment = function (link) {
+                        var currSegment = link.splice(binderLocation.length - pattern.length, pattern.length),
+                            prevSegment = prevLoc.splice(0, pattern.length);
+                        return (!currSegment.equals(prevSegment));
+                    };
+                fragment = checkSegment(matched || loc.split('/'))
+                if (fragment) {
+                    matched = loc.split('/').splice(0, binderLocation.length - pattern.length);
+                    var handler = binder.getLeaveHandler();
+                    var args = [];
+                    this.applyHandler(handler, args, params, location);
+                    notValid.push(binder);
+                }
+            }.bind(this));
+
+            notValid.forEach(function (binder) {
+                this.bindings.splice(this.bindings.indexOf(binder), 1);
+            }.bind(this));
+
+            this.find(this.root, loc, params);
         }
     };
     Router.prototype.find = function (binder, location, params) {
@@ -97,31 +150,6 @@ define([
         return str.join("&");
     };
     Router.prototype.runHandler = function (location, params, binding) {
-        var notValid = [];
-        this.bindings.forEach(function (binder) {
-            var binderLocation,
-                fragment;
-            if (binder.pattern.indexOf(':') === -1) {
-                binderLocation = binder.location;
-                fragment = params.root.substring(0, binderLocation.length) !== binderLocation;
-
-            } else {
-                binderLocation = binder.location.replace(binder.pattern.replace(/\((.*?)\)/g, '$1'), binder.prevLoc);
-                var parsed = params.root.replace(binderLocation, '');
-                fragment = parsed.split('/')[0]!=='';
-            }
-
-            if (fragment) {
-                var handler = binder.getLeaveHandler();
-                var args = [];
-                this.applyHandler(handler, args, params, location);
-                notValid.push(binder);
-            }
-        }.bind(this));
-
-        notValid.forEach(function (binder) {
-            this.bindings.splice(this.bindings.indexOf(binder), 1);
-        }.bind(this))
 
         if (this.bindings.indexOf(binding) === -1) {
             var handler = binding.getHandler();
@@ -132,6 +160,7 @@ define([
             this.applyHandler(handler, args, params, location);
             this.bindings.push(binding);
         }
+
         if (!isEmpty(params.query)) {
             var handler = binding.getQueryHandler();
             var args = [];

@@ -3,7 +3,7 @@ define(function () {
         if (location === '') {
             this.pattern = location = pattern.replace(/^\(\/\)/g, '').replace(/^\/|$/g, '');
         } else {
-            this.pattern = pattern;
+                this.pattern = pattern;
             location = (location + pattern);
         }
         this.location = location.replace(/\((.*?)\)/g, '$1').replace(/^\/|$/g, '');
@@ -37,8 +37,8 @@ define(function () {
         return location.replace(subLocation, '');
     };
     MatchBinding.prototype.applyParams = function (location) {
-        var matches  = this.pattern.replace(/\((.*?)\)/g, '$1').split('/');
-        var matches2  = location.split('/');
+        var matches = this.pattern.replace(/\((.*?)\)/g, '$1').split('/');
+        var matches2 = location.split('/');
         return matches2.splice(0, matches.length).join('/');
     };
     MatchBinding.prototype.extractParams = function (fragment) {
