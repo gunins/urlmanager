@@ -20,6 +20,8 @@ define(['../../src/router/Router'], function (Router) {
                     // dynamic route for list
                     match('/:id').to(function (id) {
                         console.log('list id', id);
+                    }).leave(function () {
+                        console.log('list id is leaved');
                     });
                 }).to(function () {
                     console.log('list');
@@ -28,6 +30,8 @@ define(['../../src/router/Router'], function (Router) {
                 // Triggering and return particullar url segments
             }).to(function (a, b, c, params) {
                 console.log('leveloptC', a, b, c, params)
+            }).leave(function () {
+                console.log('leveloptC leaved');
             });
 
         }).to(function () {
