@@ -11,6 +11,7 @@
   "ignore":[
     "docs",
     "examples",
-    "src"
+    "src",
+    "test"
   ]
 }
