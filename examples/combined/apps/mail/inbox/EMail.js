@@ -1,13 +1,13 @@
-define(["require", "exports"], function(require, exports) {
+define(function() {
     function Mail(id, builder) {
         var data = {
             '0123456789': {
-                from: 'John Smith',
-                subject: 'Second Mail'
+                from: 'Andrew Werber',
+                subject: 'Hello Andrew'
             },
             'qwertyui': {
-                from: 'Saturn Plato',
-                subject: 'First Mail'
+                from: 'Mat Connor',
+                subject: 'This is Matt'
             }
         };
         var mail = data[id];
