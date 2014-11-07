@@ -9,21 +9,9 @@
 <script src="../node_modules/mocha/mocha.js"></script>
 <script src="../node_modules/requirejs/require.js"></script>
 <script>
-require.config({
-        baseUrl:'../src',
-        paths:{
-            test:'../test',
-            chai:"../node_modules/chai/chai"
-        }
-    });
+    window.testPathname = 'test/routerTest'
 </script>
-<script>mocha.setup('bdd')</script>
-<script>
-    mocha.checkLeaks();
-    require(['test/routerTest'],
-            function(){
-                mocha.run();
-            });
-</script>
+<script src="test-bootstrap.js"></script>
+
 </body>
 </html>

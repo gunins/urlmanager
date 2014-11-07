@@ -56,7 +56,46 @@
               
             </div>
             
-            <div class="content"><div class='highlight'><pre>define([<span class="hljs-string">'./MatchBinding'</span>], <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(MatchBinding)</span> </span>{
+            <div class="content"><div class='highlight'><pre>(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(root, factory)</span> </span>{
+
+    <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> define === <span class="hljs-string">'function'</span> &amp;&amp; define.amd) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-2">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+              <p>AMD. Register as an anonymous module.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        define([
+            <span class="hljs-string">'./MatchBinding'</span>
+        ], factory);
+    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> exports === <span class="hljs-string">'object'</span>) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-3">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+              <p>Node. Does not work with strict CommonJS, but
+only CommonJS-like environments that support module.exports,
+like Node.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-built_in">module</span>.exports = factory(<span class="hljs-built_in">require</span>(<span class="hljs-string">'./MatchBinding'</span>));
+    }
+}(<span class="hljs-keyword">this</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(MatchBinding)</span> </span>{
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">MatchBinder</span><span class="hljs-params">(location)</span> </span>{
         <span class="hljs-keyword">this</span>.bindings = [];
         <span class="hljs-keyword">this</span>.location = location || <span class="hljs-string">''</span>;
@@ -85,7 +124,7 @@
     };
 
     <span class="hljs-keyword">return</span> MatchBinder;
-});</pre></div></div>
+}));</pre></div></div>
             
         </li>
         

@@ -1,11 +1,21 @@
-/*globals describe, afterEach, it*/
-define([
-    'chai',
-    'router/Router'
-], function (chai, Router) {
+(function (root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD. Register as an anonymous module.
+        define([
+            'chai',
+            'router/Router'
+        ], factory);
+    } else if (typeof exports === 'object') {
+        // Node. Does not work with strict CommonJS, but
+        // only CommonJS-like environments that support module.exports,
+        // like Node.
+        module.exports = factory(require('chai'), require('../src/Router'));
+    }
+}(this, function (chai, Router) {
     var expect = chai.expect;
     var router = new Router;
     var route = {};
+
     router.match(function (match) {
         //Nested Routes
         match('(/)levelB', function (match) {
@@ -40,7 +50,7 @@ define([
                 // Triggering and return particullar url segments
             }).to(function (a, b, c, params) {
                 route.levelOptC = {a: a, b: b, c: c};
-                console.log('leveloptC', a, b, c, params)
+                console.log('leveloptC', a, b, c, params.getQuery())
             }).leave(function () {
                 route.levelOptCLeave = 'leaved';
                 console.log('leveloptC leaved');
@@ -196,7 +206,7 @@ define([
                 });
                 it('levelB/a/b/d route triggered, nothing changed', function () {
                     router.trigger('levelB/a/b/d');
-                    var compare ={};
+                    var compare = {};
                     expect(route).to.deep.equal(compare);
                     expect(route.levelBEx).to.be.undefined;
                     expect(route.levelB).to.be.undefined;
@@ -205,7 +215,7 @@ define([
                 });
                 it('levelB/ route triggered, nothing changed', function () {
                     router.trigger('levelB/');
-                    var compare ={
+                    var compare = {
                         levelOptCLeave: 'leaved',
                     };
                     expect(route).to.deep.equal(compare);
@@ -222,4 +232,4 @@ define([
             route = {};
         });
     });
-});
+}));

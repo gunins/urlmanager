@@ -1,7 +1,18 @@
 /*globals define*/
-define([
-    './MatchBinder'
-], function (MatchBinder) {
+(function (root, factory) {
+
+    if (typeof define === 'function' && define.amd) {
+        // AMD. Register as an anonymous module.
+        define([
+            './MatchBinder'
+        ], factory);
+    } else if (typeof exports === 'object') {
+        // Node. Does not work with strict CommonJS, but
+        // only CommonJS-like environments that support module.exports,
+        // like Node.
+        module.exports = factory(require('./MatchBinder'));
+    }
+}(this, function (MatchBinder) {
     'use strict';
     // attach the .equals method to Array's prototype to call it on any array
     Array.prototype.equals = function (array) {
@@ -190,4 +201,4 @@ define([
     };
 
     return Router;
-});
+}));

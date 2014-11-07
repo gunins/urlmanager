@@ -49,6 +49,15 @@ module.exports = function (grunt) {
                 push: false
             }
         },
+        mocha_require_phantom: {
+            options: {
+                base: 'test',
+                main: 'test-bootstrap',
+                requireLib: '../node_modules/requirejs/require.js',
+                files: ['./*.js']
+            },
+            target: {}
+        },
         connect: {
             options: {
                 keepalive: true
@@ -61,6 +70,7 @@ module.exports = function (grunt) {
             }
         }
     });
+    grunt.loadNpmTasks('grunt-mocha-require-phantom');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-clean');
@@ -70,7 +80,8 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-bump');
     grunt.loadNpmTasks('grunt-contrib-connect');
 
-    grunt.registerTask('default', ['clean', 'requirejs', 'copy', 'docco']);
+    grunt.registerTask('test', ['mocha_require_phantom']);
+    grunt.registerTask('default', ['clean', 'requirejs', 'copy', 'test', 'docco']);
     grunt.registerTask('publish', ['bump', 'default', 'exec:publish']);
 
 };

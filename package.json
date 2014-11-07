@@ -13,9 +13,12 @@
     "grunt-contrib-concat": "^0.5.0",
     "grunt-contrib-connect": "latest",
     "grunt-contrib-copy": "^0.7.0",
+    "grunt-contrib-nodeunit": "^0.4.1",
     "grunt-contrib-requirejs": "^0.4.4",
     "grunt-docco": "^0.3.3",
     "grunt-exec": "^0.4.6",
+    "grunt-lib-phantomjs": "~0.4.0",
+    "grunt-mocha-require-phantom": "^0.3.1",
     "mocha": "^2.0.1"
   },
   "dependencies": {
