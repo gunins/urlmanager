@@ -8,13 +8,17 @@
         // only CommonJS-like environments that support module.exports,
         // like Node.
         module.exports = factory();
+    } else {
+        // Browser globals (root is window)
+        root.UrlManager = root.UrlManager || {};
+        root.UrlManager.MatchBinding = factory();
     }
 }(this, function () {
     function MatchBinding(pattern, location) {
         if (location === '') {
             this.pattern = location = pattern.replace(/^\(\/\)/g, '').replace(/^\/|$/g, '');
         } else {
-                this.pattern = pattern;
+            this.pattern = pattern;
             location = (location + pattern);
         }
         this.location = location.replace(/\((.*?)\)/g, '$1').replace(/^\/|$/g, '');
@@ -27,7 +31,7 @@
 
         this.patternRegExp = new RegExp('^' + route);
         this.routeHandler = [];
-        this.leaveHandler =[];
+        this.leaveHandler = [];
         this.queryHandler = [];
     }
 

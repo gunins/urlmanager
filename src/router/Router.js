@@ -11,6 +11,10 @@
         // only CommonJS-like environments that support module.exports,
         // like Node.
         module.exports = factory(require('./MatchBinder'));
+    }else{
+        // Browser globals (root is window)
+        root.UrlManager = root.UrlManager || {};
+        root.UrlManager.Router = factory(root.UrlManager.MatchBinder);
     }
 }(this, function (MatchBinder) {
     'use strict';
