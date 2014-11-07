@@ -26,7 +26,8 @@ module.exports = function (grunt) {
             prod: {
                 files: [
                     {expand: true, cwd: './', src: ['package.json', 'bower.json', 'README.md'], dest: 'dist'},
-                    {expand: true, cwd: './target', src: ['./**'], dest: 'dist/'}
+                    {expand: true, cwd: './target', src: ['./**'], dest: 'dist/prod'},
+                    {expand: true, cwd: './src', src: ['./**'], dest: 'dist'}
 
                 ]
             }
@@ -58,6 +59,17 @@ module.exports = function (grunt) {
             },
             target: {}
         },
+        mochaTest: {
+            options: {
+                reporter: 'spec',
+                captureFile: 'target/results.txt', // Optionally capture the reporter output to a file
+                quiet: false, // Optionally suppress output to standard out (defaults to false)
+                clearRequireCache: false // Optionally clear the require cache before running tests (defaults to false)
+            },
+            test: {
+                src: ['test/routerTest.js']
+            }
+        },
         connect: {
             options: {
                 keepalive: true
@@ -70,6 +82,8 @@ module.exports = function (grunt) {
             }
         }
     });
+
+    grunt.loadNpmTasks('grunt-mocha-test');
     grunt.loadNpmTasks('grunt-mocha-require-phantom');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-concat');
@@ -80,7 +94,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-bump');
     grunt.loadNpmTasks('grunt-contrib-connect');
 
-    grunt.registerTask('test', ['mocha_require_phantom']);
+    grunt.registerTask('test', ['mocha_require_phantom', 'mochaTest']);
     grunt.registerTask('default', ['clean', 'requirejs', 'copy', 'test', 'docco']);
     grunt.registerTask('publish', ['bump', 'default', 'exec:publish']);
 

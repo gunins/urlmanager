@@ -1,1 +1,30 @@
-var __extends=this.__extends||function(t,n){function e(){this.constructor=t}for(var r in n)n.hasOwnProperty(r)&&(t[r]=n[r]);e.prototype=n.prototype,t.prototype=new e};define(["../router/Router","./MatchBinder"],function(t,n){var e=function(t){function e(){t.apply(this,arguments)}return __extends(e,t),e.prototype.getBinder=function(){return new n},e.prototype.onBinding=function(e,r,o){t.prototype.onBinding.call(this,e,r,o);var i=o.getRegion();i&&i(new n(o.getFragment(e),r,this))},e.prototype.execute=function(t){var n=t.filter(t.fragment);n.forEach(this.runHandler.bind(this,t.fragment,t.query))},e}(t);return e});
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+define(['../router/Router', './MatchBinder'], function (Router, MyMatchBinder) {
+    var MyRouter = (function (_super) {
+        __extends(MyRouter, _super);
+        function MyRouter() {
+            _super.apply(this, arguments);
+        }
+        MyRouter.prototype.getBinder = function () {
+            return new MyMatchBinder();
+        };
+        MyRouter.prototype.onBinding = function (location, query, binding) {
+            _super.prototype.onBinding.call(this, location, query, binding);
+            var Region = binding.getRegion();
+            if (Region) {
+                Region(new MyMatchBinder(binding.getFragment(location), query, this));
+            }
+        };
+        MyRouter.prototype.execute = function (binder) {
+            var bindings = binder.filter(binder.fragment);
+            bindings.forEach(this.runHandler.bind(this, binder.fragment, binder.query));
+        };
+        return MyRouter;
+    })(Router);
+    return MyRouter;
+});

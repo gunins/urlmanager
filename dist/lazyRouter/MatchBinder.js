@@ -1,1 +1,28 @@
-var __extends=this.__extends||function(t,n){function e(){this.constructor=t}for(var r in n)n.hasOwnProperty(r)&&(t[r]=n[r]);e.prototype=n.prototype,t.prototype=new e};define(["../router/MatchBinder","./MatchBinding"],function(t){var n=function(t){function n(n,e,r){t.call(this),this.fragment=n,this.query=e,this.command=r}return __extends(n,t),n.prototype.getSubBinder=function(){return new n},n.prototype.getMatchBinding=function(t){return new MatchBinding(t)},n.prototype.run=function(){this.command.execute(this)},n}(t);return n});
+var __extends = this.__extends || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    __.prototype = b.prototype;
+    d.prototype = new __();
+};
+define(['../router/MatchBinder', './MatchBinding'], function (MatchBinder, RegMatchBinding) {
+    var RegMatchBinder = (function (_super) {
+        __extends(RegMatchBinder, _super);
+        function RegMatchBinder(fragment, query, command) {
+            _super.call(this);
+            this.fragment = fragment;
+            this.query = query;
+            this.command = command;
+        }
+        RegMatchBinder.prototype.getSubBinder = function () {
+            return new RegMatchBinder();
+        };
+        RegMatchBinder.prototype.getMatchBinding = function (pattern) {
+            return new MatchBinding(pattern);
+        };
+        RegMatchBinder.prototype.run = function () {
+            this.command.execute(this);
+        };
+        return RegMatchBinder;
+    })(MatchBinder);
+    return RegMatchBinder;
+});

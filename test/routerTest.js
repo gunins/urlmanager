@@ -9,7 +9,7 @@
         // Node. Does not work with strict CommonJS, but
         // only CommonJS-like environments that support module.exports,
         // like Node.
-        module.exports = factory(require('chai'), require('../src/Router'));
+        module.exports = factory(require('chai'), require('../dist/router/Router'));
     }
 }(this, function (chai, Router) {
     var expect = chai.expect;

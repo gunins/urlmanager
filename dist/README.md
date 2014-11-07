@@ -16,5 +16,5 @@ Using Bower
 
     bower install urlmanager
 
-
+***This package still under development***
 
