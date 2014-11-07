@@ -94,6 +94,23 @@ like Node.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>        <span class="hljs-built_in">module</span>.exports = factory(<span class="hljs-built_in">require</span>(<span class="hljs-string">'./MatchBinding'</span>));
+    }<span class="hljs-keyword">else</span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>Browser globals (root is window)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        root.UrlManager = root.UrlManager || {};
+        root.UrlManager.MatchBinder = factory(root.UrlManager.MatchBinding);
     }
 }(<span class="hljs-keyword">this</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(MatchBinding)</span> </span>{
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">MatchBinder</span><span class="hljs-params">(location)</span> </span>{

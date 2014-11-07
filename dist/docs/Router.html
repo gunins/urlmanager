@@ -95,9 +95,7 @@ like Node.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>        <span class="hljs-built_in">module</span>.exports = factory(<span class="hljs-built_in">require</span>(<span class="hljs-string">'./MatchBinder'</span>));
-    }
-}(<span class="hljs-keyword">this</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(MatchBinder)</span> </span>{
-<span class="hljs-pi">    'use strict'</span>;</pre></div></div>
+    }<span class="hljs-keyword">else</span>{</pre></div></div>
             
         </li>
         
@@ -108,11 +106,15 @@ like Node.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-4">&#182;</a>
               </div>
-              <p>attach the .equals method to Array’s prototype to call it on any array</p>
+              <p>Browser globals (root is window)</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    <span class="hljs-built_in">Array</span>.prototype.equals = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(array)</span> </span>{</pre></div></div>
+            <div class="content"><div class='highlight'><pre>        root.UrlManager = root.UrlManager || {};
+        root.UrlManager.Router = factory(root.UrlManager.MatchBinder);
+    }
+}(<span class="hljs-keyword">this</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(MatchBinder)</span> </span>{
+<span class="hljs-pi">    'use strict'</span>;</pre></div></div>
             
         </li>
         
@@ -122,6 +124,21 @@ like Node.</p>
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>attach the .equals method to Array’s prototype to call it on any array</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-built_in">Array</span>.prototype.equals = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(array)</span> </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-6">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
               </div>
               <p>if the other array is a falsy value, return</p>
 
@@ -133,11 +150,11 @@ like Node.</p>
         </li>
         
         
-        <li id="section-6">
+        <li id="section-7">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-6">&#182;</a>
+                <a class="pilcrow" href="#section-7">&#182;</a>
               </div>
               <p>compare lengths - can save a lot of time</p>
 
@@ -151,11 +168,11 @@ like Node.</p>
         </li>
         
         
-        <li id="section-7">
+        <li id="section-8">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-7">&#182;</a>
+                <a class="pilcrow" href="#section-8">&#182;</a>
               </div>
               <p>Check if we have nested arrays</p>
 
@@ -166,11 +183,11 @@ like Node.</p>
         </li>
         
         
-        <li id="section-8">
+        <li id="section-9">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-8">&#182;</a>
+                <a class="pilcrow" href="#section-9">&#182;</a>
               </div>
               <p>recurse into the nested arrays</p>
 
@@ -184,11 +201,11 @@ like Node.</p>
         </li>
         
         
-        <li id="section-9">
+        <li id="section-10">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-9">&#182;</a>
+                <a class="pilcrow" href="#section-10">&#182;</a>
               </div>
               <p>Warning - two different object instances will never be equal: {x:20} != {x:20}</p>
 
@@ -213,11 +230,11 @@ like Node.</p>
         </li>
         
         
-        <li id="section-10">
+        <li id="section-11">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-10">&#182;</a>
+                <a class="pilcrow" href="#section-11">&#182;</a>
               </div>
               <p>Failover to whatever was passed if we get junk data</p>
 

@@ -92,13 +92,30 @@ like Node.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>        <span class="hljs-built_in">module</span>.exports = factory();
+    } <span class="hljs-keyword">else</span> {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>Browser globals (root is window)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        root.UrlManager = root.UrlManager || {};
+        root.UrlManager.MatchBinding = factory();
     }
 }(<span class="hljs-keyword">this</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> </span>{
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">MatchBinding</span><span class="hljs-params">(pattern, location)</span> </span>{
         <span class="hljs-keyword">if</span> (location === <span class="hljs-string">''</span>) {
             <span class="hljs-keyword">this</span>.pattern = location = pattern.replace(<span class="hljs-regexp">/^\(\/\)/g</span>, <span class="hljs-string">''</span>).replace(<span class="hljs-regexp">/^\/|$/g</span>, <span class="hljs-string">''</span>);
         } <span class="hljs-keyword">else</span> {
-                <span class="hljs-keyword">this</span>.pattern = pattern;
+            <span class="hljs-keyword">this</span>.pattern = pattern;
             location = (location + pattern);
         }
         <span class="hljs-keyword">this</span>.location = location.replace(<span class="hljs-regexp">/\((.*?)\)/g</span>, <span class="hljs-string">'$1'</span>).replace(<span class="hljs-regexp">/^\/|$/g</span>, <span class="hljs-string">''</span>);
@@ -111,7 +128,7 @@ like Node.</p>
 
         <span class="hljs-keyword">this</span>.patternRegExp = <span class="hljs-keyword">new</span> <span class="hljs-built_in">RegExp</span>(<span class="hljs-string">'^'</span> + route);
         <span class="hljs-keyword">this</span>.routeHandler = [];
-        <span class="hljs-keyword">this</span>.leaveHandler =[];
+        <span class="hljs-keyword">this</span>.leaveHandler = [];
         <span class="hljs-keyword">this</span>.queryHandler = [];
     }
 
