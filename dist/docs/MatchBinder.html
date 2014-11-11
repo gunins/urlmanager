@@ -113,9 +113,12 @@ like Node.</p>
         root.UrlManager.MatchBinder = factory(root.UrlManager.MatchBinding);
     }
 }(<span class="hljs-keyword">this</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(MatchBinding)</span> </span>{
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">MatchBinder</span><span class="hljs-params">(location)</span> </span>{
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">MatchBinder</span><span class="hljs-params">(location, params, command)</span> </span>{
         <span class="hljs-keyword">this</span>.bindings = [];
         <span class="hljs-keyword">this</span>.location = location || <span class="hljs-string">''</span>;
+        <span class="hljs-keyword">this</span>.command = command;
+        <span class="hljs-keyword">this</span>.params = params;
+
     }
 
     MatchBinder.prototype.match = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(pattern, mapHandler)</span> </span>{
@@ -139,7 +142,9 @@ like Node.</p>
             <span class="hljs-keyword">return</span> binding.test(location);
         });
     };
-
+    MatchBinder.prototype.run = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> </span>{
+        <span class="hljs-keyword">this</span>.command.execute(<span class="hljs-keyword">this</span>);
+    };
     <span class="hljs-keyword">return</span> MatchBinder;
 }));</pre></div></div>
             

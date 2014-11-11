@@ -33,7 +33,17 @@
         this.routeHandler = [];
         this.leaveHandler = [];
         this.queryHandler = [];
+        this.routes = [];
     }
+
+    MatchBinding.prototype.setRoutes = function (routes) {
+        this.routes.push(routes);
+        return this;
+    };
+
+    MatchBinding.prototype.getRoutes = function () {
+        return this.routes;
+    };
 
     MatchBinding.prototype.to = function (routeHandler) {
         this.routeHandler.push(routeHandler);
@@ -81,6 +91,7 @@
     MatchBinding.prototype.getQueryHandler = function () {
         return this.queryHandler;
     };
+
     MatchBinding.OPTIONAL_PARAM = /\((.*?)\)/g;
     MatchBinding.NAMED_PARAM = /(\(\?)?:\w+/g;
     MatchBinding.SPLAT_PARAM = /\*\w+/g;

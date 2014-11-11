@@ -11,7 +11,7 @@
         // only CommonJS-like environments that support module.exports,
         // like Node.
         module.exports = factory(require('./MatchBinder'));
-    }else{
+    } else {
         // Browser globals (root is window)
         root.UrlManager = root.UrlManager || {};
         root.UrlManager.Router = factory(root.UrlManager.MatchBinder);
@@ -148,12 +148,24 @@
         var bindings = binder.filter(location);
         bindings.forEach(this.onBinding.bind(this, location, params));
     };
+
+    Router.prototype.execute = function (binder) {
+        var bindings = binder.filter(binder.location);
+        bindings.forEach(this.runHandler.bind(this, binder.location, binder.params));
+    };
+
     Router.prototype.onBinding = function (location, params, binding) {
         this.runHandler(location, params, binding);
         var fragment = binding.getFragment(location);
         var subBinder = binding.getSubBinder();
         if (subBinder && subBinder.bindings && subBinder.bindings.length > 0) {
             this.find(subBinder, fragment, params);
+        }
+        var subRoutes = binding.getRoutes();
+        if (subRoutes && subRoutes.length > 0) {
+            subRoutes.forEach(function (Route) {
+                Route(new MatchBinder(binding.getFragment(location), params, this));
+            }.bind(this));
         }
     };
     Router.prototype.serialize = function (obj) {

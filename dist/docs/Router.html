@@ -95,7 +95,7 @@ like Node.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>        <span class="hljs-built_in">module</span>.exports = factory(<span class="hljs-built_in">require</span>(<span class="hljs-string">'./MatchBinder'</span>));
-    }<span class="hljs-keyword">else</span>{</pre></div></div>
+    } <span class="hljs-keyword">else</span> {</pre></div></div>
             
         </li>
         
@@ -335,12 +335,24 @@ like Node.</p>
         <span class="hljs-keyword">var</span> bindings = binder.filter(location);
         bindings.forEach(<span class="hljs-keyword">this</span>.onBinding.bind(<span class="hljs-keyword">this</span>, location, params));
     };
+
+    Router.prototype.execute = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(binder)</span> </span>{
+        <span class="hljs-keyword">var</span> bindings = binder.filter(binder.location);
+        bindings.forEach(<span class="hljs-keyword">this</span>.runHandler.bind(<span class="hljs-keyword">this</span>, binder.location, binder.params));
+    };
+
     Router.prototype.onBinding = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(location, params, binding)</span> </span>{
         <span class="hljs-keyword">this</span>.runHandler(location, params, binding);
         <span class="hljs-keyword">var</span> fragment = binding.getFragment(location);
         <span class="hljs-keyword">var</span> subBinder = binding.getSubBinder();
         <span class="hljs-keyword">if</span> (subBinder &amp;&amp; subBinder.bindings &amp;&amp; subBinder.bindings.length &gt; <span class="hljs-number">0</span>) {
             <span class="hljs-keyword">this</span>.find(subBinder, fragment, params);
+        }
+        <span class="hljs-keyword">var</span> subRoutes = binding.getRoutes();
+        <span class="hljs-keyword">if</span> (subRoutes &amp;&amp; subRoutes.length &gt; <span class="hljs-number">0</span>) {
+            subRoutes.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(Route)</span> </span>{
+                Route(<span class="hljs-keyword">new</span> MatchBinder(binding.getFragment(location), params, <span class="hljs-keyword">this</span>));
+            }.bind(<span class="hljs-keyword">this</span>));
         }
     };
     Router.prototype.serialize = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(obj)</span> </span>{

@@ -16,9 +16,12 @@
         root.UrlManager.MatchBinder = factory(root.UrlManager.MatchBinding);
     }
 }(this, function (MatchBinding) {
-    function MatchBinder(location) {
+    function MatchBinder(location, params, command) {
         this.bindings = [];
         this.location = location || '';
+        this.command = command;
+        this.params = params;
+
     }
 
     MatchBinder.prototype.match = function (pattern, mapHandler) {
@@ -42,6 +45,8 @@
             return binding.test(location);
         });
     };
-
+    MatchBinder.prototype.run = function () {
+        this.command.execute(this);
+    };
     return MatchBinder;
 }));

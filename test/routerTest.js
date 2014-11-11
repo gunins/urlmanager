@@ -86,7 +86,14 @@
         }).to(function () {
             route.levelACh = 'levelACh';
             console.log('levelA chained triggered')
-        });
+        }).setRoutes(function(routes){
+            routes.match('/levelR').to(function(){
+                route.levelR = 'levelR';
+                console.log('levelR triggered');
+            });
+            routes.run();
+
+        });;
 
     });
     router.start();
@@ -102,36 +109,29 @@
                     router.trigger('/levelA');
                     expect(route).to.deep.equal({levelA: 'levelA', levelACh: 'levelACh'});
                 });
+                it('levelA/levelR lazy route triggered should equal to levelR', function () {
+                    router.trigger('/levelA/levelR');
+                    expect(route).to.deep.equal({levelR: 'levelR'});
+                });
 
                 it('levelA/levelC route triggered should equal to levelA levelACh', function () {
                     router.trigger('/levelA/levelC');
                     expect(route).to.deep.equal({levelC: 'levelC'});
-                    expect(route.levelA).to.be.undefined;
-                    expect(route.levelACh).to.be.undefined;
                 });
 
                 it('levelA/levelC?a=5 route triggered query souldBe 5', function () {
                     router.trigger('/levelA/levelC?a=5');
                     expect(route.query).to.deep.equal({a: '5'});
-                    expect(route.levelC).to.be.undefined;
-                    expect(route.levelA).to.be.undefined;
-                    expect(route.levelACh).to.be.undefined;
                 });
 
                 it('levelA/levelC?a=6 route triggered query souldBe 6', function () {
                     router.trigger('/levelA/levelC?a=6');
                     expect(route.query).to.deep.equal({a: '6'});
-                    expect(route.levelC).to.be.undefined;
-                    expect(route.levelA).to.be.undefined;
-                    expect(route.levelACh).to.be.undefined;
                 });
 
                 it('levelA route triggered again should equal to LevelC Leaved', function () {
                     router.trigger('/levelA');
                     expect(route).to.deep.equal({levelCLeaved: 'levelCLeaved'});
-                    expect(route.levelC).to.be.undefined;
-                    expect(route.levelA).to.be.undefined;
-                    expect(route.levelACh).to.be.undefined;
                 });
             });
             describe('Mixed Routes triggered in DESC Order', function () {
@@ -146,9 +146,6 @@
                         listId: '35'
                     };
                     expect(route).to.deep.equal(compare);
-                    expect(route.levelC).to.be.undefined;
-                    expect(route.levelA).to.be.undefined;
-                    expect(route.levelACh).to.be.undefined;
                 });
                 it('levelB/a/b/c/list/36 route triggered, only id is changed', function () {
                     router.trigger('levelB/a/b/c/list/36');
@@ -159,10 +156,6 @@
                     };
 
                     expect(route).to.deep.equal(compare);
-                    expect(route.levelBEx).to.be.undefined;
-                    expect(route.levelB).to.be.undefined;
-                    expect(route.levelOptC).to.be.undefined;
-                    expect(route.list).to.be.undefined;
                 });
                 it('levelB/a/b/c/table/36 route triggered, only id is changed', function () {
                     router.trigger('levelB/a/b/c/table/36');
@@ -173,10 +166,6 @@
                         listLeave: 'leave'
                     };
                     expect(route).to.deep.equal(compare);
-                    expect(route.levelBEx).to.be.undefined;
-                    expect(route.levelB).to.be.undefined;
-                    expect(route.levelOptC).to.be.undefined;
-                    expect(route.list).to.be.undefined;
                 });
                 it('levelB/a/b/c/table/35 route triggered, only id is changed', function () {
                     router.trigger('levelB/a/b/c/table/35');
@@ -186,10 +175,6 @@
                     };
 
                     expect(route).to.deep.equal(compare);
-                    expect(route.levelBEx).to.be.undefined;
-                    expect(route.levelB).to.be.undefined;
-                    expect(route.levelOptC).to.be.undefined;
-                    expect(route.table).to.be.undefined;
                 });
                 it('levelB/a/b/d/table/35 route after levelB triggered', function () {
                     router.trigger('levelB/a/b/d/table/35');
@@ -201,17 +186,11 @@
                         tableId: '35'
                     };
                     expect(route).to.deep.equal(compare);
-                    expect(route.levelBEx).to.be.undefined;
-                    expect(route.levelB).to.be.undefined;
                 });
                 it('levelB/a/b/d route triggered, nothing changed', function () {
                     router.trigger('levelB/a/b/d');
                     var compare = {};
                     expect(route).to.deep.equal(compare);
-                    expect(route.levelBEx).to.be.undefined;
-                    expect(route.levelB).to.be.undefined;
-                    expect(route.levelOptC).to.be.undefined;
-                    expect(route.table).to.be.undefined;
                 });
                 it('levelB/ route triggered, nothing changed', function () {
                     router.trigger('levelB/');
@@ -219,10 +198,6 @@
                         levelOptCLeave: 'leaved',
                     };
                     expect(route).to.deep.equal(compare);
-                    expect(route.levelBEx).to.be.undefined;
-                    expect(route.levelB).to.be.undefined;
-                    expect(route.levelOptC).to.be.undefined;
-                    expect(route.table).to.be.undefined;
                 });
 
             });

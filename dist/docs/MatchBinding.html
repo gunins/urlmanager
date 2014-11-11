@@ -130,7 +130,17 @@ like Node.</p>
         <span class="hljs-keyword">this</span>.routeHandler = [];
         <span class="hljs-keyword">this</span>.leaveHandler = [];
         <span class="hljs-keyword">this</span>.queryHandler = [];
+        <span class="hljs-keyword">this</span>.routes = [];
     }
+
+    MatchBinding.prototype.setRoutes = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(routes)</span> </span>{
+        <span class="hljs-keyword">this</span>.routes.push(routes);
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+    };
+
+    MatchBinding.prototype.getRoutes = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> </span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.routes;
+    };
 
     MatchBinding.prototype.to = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(routeHandler)</span> </span>{
         <span class="hljs-keyword">this</span>.routeHandler.push(routeHandler);
@@ -178,6 +188,7 @@ like Node.</p>
     MatchBinding.prototype.getQueryHandler = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> </span>{
         <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.queryHandler;
     };
+
     MatchBinding.OPTIONAL_PARAM = <span class="hljs-regexp">/\((.*?)\)/g</span>;
     MatchBinding.NAMED_PARAM = <span class="hljs-regexp">/(\(\?)?:\w+/g</span>;
     MatchBinding.SPLAT_PARAM = <span class="hljs-regexp">/\*\w+/g</span>;

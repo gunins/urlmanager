@@ -4,7 +4,7 @@ var __extends = this.__extends || function (d, b) {
     __.prototype = b.prototype;
     d.prototype = new __();
 };
-define(['../router/MatchBinder', './MatchBinding'], function (MatchBinder, RegMatchBinding) {
+define(['../router/MatchBinder'], function (MatchBinder) {
     var RegMatchBinder = (function (_super) {
         __extends(RegMatchBinder, _super);
         function RegMatchBinder(fragment, query, command) {
