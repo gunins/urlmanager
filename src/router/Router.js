@@ -127,7 +127,7 @@
                             prevSegment = prevLoc.splice(0, pattern.length);
                         return (!currSegment.equals(prevSegment));
                     };
-                fragment = checkSegment(matched || loc.split('/'))
+                fragment = checkSegment(matched || loc.split('/'));
                 if (fragment) {
                     matched = loc.split('/').splice(0, binderLocation.length - pattern.length);
                     var handler = binder.getLeaveHandler();
@@ -164,8 +164,11 @@
         var subRoutes = binding.getRoutes();
         if (subRoutes && subRoutes.length > 0) {
             subRoutes.forEach(function (Route) {
-                Route(new MatchBinder(binding.getFragment(location), params, this));
+                var binder = new MatchBinder(binding.getFragment(location), params, this.execute.bind(this), binding.location)
+                Route(binder);
+                subBinder.bindings = subBinder.bindings.concat(binder.bindings);
             }.bind(this));
+            binding.routes = [];
         }
     };
     Router.prototype.serialize = function (obj) {

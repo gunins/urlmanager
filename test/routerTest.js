@@ -93,7 +93,7 @@
             });
             routes.run();
 
-        });;
+        });
 
     });
     router.start();

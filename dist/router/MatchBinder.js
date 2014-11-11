@@ -10,15 +10,15 @@
         // only CommonJS-like environments that support module.exports,
         // like Node.
         module.exports = factory(require('./MatchBinding'));
-    }else{
+    } else {
         // Browser globals (root is window)
         root.UrlManager = root.UrlManager || {};
         root.UrlManager.MatchBinder = factory(root.UrlManager.MatchBinding);
     }
 }(this, function (MatchBinding) {
-    function MatchBinder(location, params, command) {
+    function MatchBinder(location, params, command, root) {
         this.bindings = [];
-        this.location = location || '';
+        this.location = root || location || '';
         this.command = command;
         this.params = params;
 
@@ -46,7 +46,7 @@
         });
     };
     MatchBinder.prototype.run = function () {
-        this.command.execute(this);
+        this.command(this);
     };
     return MatchBinder;
 }));

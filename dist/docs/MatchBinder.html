@@ -94,7 +94,7 @@ like Node.</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>        <span class="hljs-built_in">module</span>.exports = factory(<span class="hljs-built_in">require</span>(<span class="hljs-string">'./MatchBinding'</span>));
-    }<span class="hljs-keyword">else</span>{</pre></div></div>
+    } <span class="hljs-keyword">else</span> {</pre></div></div>
             
         </li>
         
@@ -113,9 +113,9 @@ like Node.</p>
         root.UrlManager.MatchBinder = factory(root.UrlManager.MatchBinding);
     }
 }(<span class="hljs-keyword">this</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(MatchBinding)</span> </span>{
-    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">MatchBinder</span><span class="hljs-params">(location, params, command)</span> </span>{
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">MatchBinder</span><span class="hljs-params">(location, params, command, root)</span> </span>{
         <span class="hljs-keyword">this</span>.bindings = [];
-        <span class="hljs-keyword">this</span>.location = location || <span class="hljs-string">''</span>;
+        <span class="hljs-keyword">this</span>.location = root || location || <span class="hljs-string">''</span>;
         <span class="hljs-keyword">this</span>.command = command;
         <span class="hljs-keyword">this</span>.params = params;
 
@@ -143,7 +143,7 @@ like Node.</p>
         });
     };
     MatchBinder.prototype.run = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> </span>{
-        <span class="hljs-keyword">this</span>.command.execute(<span class="hljs-keyword">this</span>);
+        <span class="hljs-keyword">this</span>.command(<span class="hljs-keyword">this</span>);
     };
     <span class="hljs-keyword">return</span> MatchBinder;
 }));</pre></div></div>

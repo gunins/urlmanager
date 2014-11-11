@@ -42,7 +42,7 @@ module.exports = function (grunt) {
         },
         bump: {
             options: {
-                files: ['package.json', 'bower.json'],
+                files: ['package.json', 'bower.json', 'dist/package.json', 'dist/bower.json'],
                 commit: false,
                 createTag: true,
                 tagName: '%VERSION%',
@@ -96,6 +96,6 @@ module.exports = function (grunt) {
 
     grunt.registerTask('test', ['mocha_require_phantom', 'mochaTest']);
     grunt.registerTask('default', ['clean', 'requirejs', 'copy', 'test', 'docco']);
-    grunt.registerTask('publish', ['bump', 'default', 'exec:publish']);
+    grunt.registerTask('publish', ['default','bump', 'exec:publish']);
 
 };

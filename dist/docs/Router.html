@@ -314,7 +314,7 @@ like Node.</p>
                             prevSegment = prevLoc.splice(<span class="hljs-number">0</span>, pattern.length);
                         <span class="hljs-keyword">return</span> (!currSegment.equals(prevSegment));
                     };
-                fragment = checkSegment(matched || loc.split(<span class="hljs-string">'/'</span>))
+                fragment = checkSegment(matched || loc.split(<span class="hljs-string">'/'</span>));
                 <span class="hljs-keyword">if</span> (fragment) {
                     matched = loc.split(<span class="hljs-string">'/'</span>).splice(<span class="hljs-number">0</span>, binderLocation.length - pattern.length);
                     <span class="hljs-keyword">var</span> handler = binder.getLeaveHandler();
@@ -351,8 +351,11 @@ like Node.</p>
         <span class="hljs-keyword">var</span> subRoutes = binding.getRoutes();
         <span class="hljs-keyword">if</span> (subRoutes &amp;&amp; subRoutes.length &gt; <span class="hljs-number">0</span>) {
             subRoutes.forEach(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(Route)</span> </span>{
-                Route(<span class="hljs-keyword">new</span> MatchBinder(binding.getFragment(location), params, <span class="hljs-keyword">this</span>));
+                <span class="hljs-keyword">var</span> binder = <span class="hljs-keyword">new</span> MatchBinder(binding.getFragment(location), params, <span class="hljs-keyword">this</span>.execute.bind(<span class="hljs-keyword">this</span>), binding.location)
+                Route(binder);
+                subBinder.bindings = subBinder.bindings.concat(binder.bindings);
             }.bind(<span class="hljs-keyword">this</span>));
+            binding.routes = [];
         }
     };
     Router.prototype.serialize = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(obj)</span> </span>{
