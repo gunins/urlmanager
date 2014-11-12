@@ -47,7 +47,8 @@ module.exports = function (grunt) {
                 createTag: true,
                 tagName: '%VERSION%',
                 tagMessage: 'Version %VERSION%',
-                push: true
+                push: true,
+                pushTo: 'origin'
             }
         },
         mocha_require_phantom: {
