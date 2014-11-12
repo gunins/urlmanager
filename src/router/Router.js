@@ -18,6 +18,7 @@
     }
 }(this, function (MatchBinder) {
     'use strict';
+
     // attach the .equals method to Array's prototype to call it on any array
     Array.prototype.equals = function (array) {
         // if the other array is a falsy value, return
@@ -42,10 +43,6 @@
         }
         return true;
     };
-
-    function isEmpty(obj) {
-        return Object.keys(obj).length === 0;
-    }
 
     function parseParams(value) {
         try {
