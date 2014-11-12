@@ -351,10 +351,10 @@ like Node.</p>
         <span class="hljs-keyword">if</span> (subRoutes &amp;&amp; subRoutes.length &gt; <span class="hljs-number">0</span>) {
             <span class="hljs-keyword">while</span> (subRoutes.length &gt; <span class="hljs-number">0</span>) {
                 <span class="hljs-keyword">var</span> Route = subRoutes[<span class="hljs-number">0</span>],
-                    binder = <span class="hljs-keyword">new</span> MatchBinder(binding.getFragment(location), params, <span class="hljs-keyword">this</span>.execute.bind(<span class="hljs-keyword">this</span>), binding.location)
+                    binder = <span class="hljs-keyword">new</span> MatchBinder(binding.getFragment(location), params, <span class="hljs-keyword">this</span>.execute.bind(<span class="hljs-keyword">this</span>), binding.location);
                 Route(binder);
                 subBinder.bindings = subBinder.bindings.concat(binder.bindings);
-                subRoutes.pop();
+                subRoutes.shift();
             }
         }
     };

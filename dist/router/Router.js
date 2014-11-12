@@ -164,10 +164,10 @@
         if (subRoutes && subRoutes.length > 0) {
             while (subRoutes.length > 0) {
                 var Route = subRoutes[0],
-                    binder = new MatchBinder(binding.getFragment(location), params, this.execute.bind(this), binding.location)
+                    binder = new MatchBinder(binding.getFragment(location), params, this.execute.bind(this), binding.location);
                 Route(binder);
                 subBinder.bindings = subBinder.bindings.concat(binder.bindings);
-                subRoutes.pop();
+                subRoutes.shift();
             }
         }
     };

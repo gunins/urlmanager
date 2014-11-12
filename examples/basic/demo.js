@@ -63,6 +63,12 @@ define(['router/Router'], function (Router) {
             });
             route.run();
 
+        }).setRoutes(function(route){
+            route.match('/levelN').to(function(){
+                console.log('levelN triggered');
+            });
+            route.run();
+
         });
 
     });
