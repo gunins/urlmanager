@@ -43,11 +43,11 @@ module.exports = function (grunt) {
         bump: {
             options: {
                 files: ['package.json', 'bower.json', 'dist/package.json', 'dist/bower.json'],
-                commit: false,
+                commit: true,
                 createTag: true,
                 tagName: '%VERSION%',
                 tagMessage: 'Version %VERSION%',
-                push: false
+                push: true
             }
         },
         mocha_require_phantom: {

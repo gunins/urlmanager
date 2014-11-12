@@ -35,7 +35,7 @@ if (Function.prototype.bind === undefined) {
     })();
 }
 require.config({
-    baseUrl: '../dist',
+    baseUrl: '../src',
     paths: {
         test: '../test',
         chai: "../node_modules/chai/chai"

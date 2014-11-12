@@ -87,9 +87,9 @@
             route.levelACh = 'levelACh';
             console.log('levelA chained triggered')
         }).setRoutes(function(routes){
-            routes.match('/levelR').to(function(){
-                route.levelR = 'levelR';
-                console.log('levelR triggered');
+            routes.match('/levelR(/:id)').to(function(id){
+                route.levelR = 'levelR: '+id;
+                console.log('levelR triggered'+id);
             });
             routes.run();
 
@@ -105,14 +105,21 @@
     describe('url manager tests', function () {
         describe('Changeroutes', function () {
             describe('Static routes Changed with query in ASC order', function () {
+                it('levelA/levelR lazy route triggered should equal to levelR and id = 35', function () {
+                    router.trigger('/levelA/levelR/35');
+                    expect(route).to.deep.equal({levelA: 'levelA', levelACh: 'levelACh', levelR: 'levelR: 35'});
+
+                });
+                it('levelA/levelR lazy route triggered should equal to levelR and id = 36', function () {
+                    router.trigger('/levelA/levelR/36');
+                    expect(route).to.deep.equal({levelR: 'levelR: 36'});
+
+                });
                 it('levelA route triggered should equal to levelA levelACh', function () {
                     router.trigger('/levelA');
-                    expect(route).to.deep.equal({levelA: 'levelA', levelACh: 'levelACh'});
+                    expect(route).to.deep.equal({});
                 });
-                it('levelA/levelR lazy route triggered should equal to levelR', function () {
-                    router.trigger('/levelA/levelR');
-                    expect(route).to.deep.equal({levelR: 'levelR'});
-                });
+
 
                 it('levelA/levelC route triggered should equal to levelA levelACh', function () {
                     router.trigger('/levelA/levelC');
