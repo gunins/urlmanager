@@ -150,8 +150,7 @@
     };
 
     Router.prototype.execute = function (binder) {
-        var bindings = binder.filter(binder.location);
-        bindings.forEach(this.runHandler.bind(this, binder.location, binder.params));
+        this.find(binder, binder.params.root.replace(binder.location, ''), binder.params);
     };
 
     Router.prototype.onBinding = function (location, params, binding) {
@@ -163,12 +162,13 @@
         }
         var subRoutes = binding.getRoutes();
         if (subRoutes && subRoutes.length > 0) {
-            subRoutes.forEach(function (Route) {
-                var binder = new MatchBinder(binding.getFragment(location), params, this.execute.bind(this), binding.location)
+            while(subRoutes.length > 0) {
+                var Route = subRoutes[0],
+                    binder = new MatchBinder(binding.getFragment(location), params, this.execute.bind(this), binding.location)
                 Route(binder);
                 subBinder.bindings = subBinder.bindings.concat(binder.bindings);
-            }.bind(this));
-            binding.routes = [];
+                subRoutes.pop();
+            }
         }
     };
     Router.prototype.serialize = function (obj) {

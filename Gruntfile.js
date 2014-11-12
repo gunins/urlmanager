@@ -2,7 +2,7 @@ module.exports = function (grunt) {
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
-        clean: ['target', 'dist'],
+        clean: ['target', 'dist', 'tmp'],
         exec: {
             npmpack: 'npm pack dist',
             publish: 'npm publish dist'
