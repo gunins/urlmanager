@@ -24,7 +24,6 @@
         // if the other array is a falsy value, return
         if (!array)
             return false;
-
         // compare lengths - can save a lot of time
         if (this.length != array.length)
             return false;
