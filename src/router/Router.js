@@ -162,7 +162,7 @@
         }
         var subRoutes = binding.getRoutes();
         if (subRoutes && subRoutes.length > 0) {
-            while(subRoutes.length > 0) {
+            while (subRoutes.length > 0) {
                 var Route = subRoutes[0],
                     binder = new MatchBinder(binding.getFragment(location), params, this.execute.bind(this), binding.location)
                 Route(binder);
@@ -191,8 +191,8 @@
             this.bindings.push(binding);
         }
 
-        if (!isEmpty(params.query)) {
-            var handler = binding.getQueryHandler();
+        var handler = binding.getQueryHandler();
+        if (handler) {
             var args = [];
             this.applyHandler(handler, args, params, location);
         }

@@ -121,9 +121,9 @@
                 });
 
 
-                it('levelA/levelC route triggered should equal to levelA levelACh', function () {
+                it('levelA/levelC route triggered should equal to levelA levelACh and query should be {}', function () {
                     router.trigger('/levelA/levelC');
-                    expect(route).to.deep.equal({levelC: 'levelC'});
+                    expect(route).to.deep.equal({levelC: 'levelC', query:{}});
                 });
 
                 it('levelA/levelC?a=5 route triggered query souldBe 5', function () {
@@ -134,6 +134,10 @@
                 it('levelA/levelC?a=6 route triggered query souldBe 6', function () {
                     router.trigger('/levelA/levelC?a=6');
                     expect(route.query).to.deep.equal({a: '6'});
+                });
+                it('levelA/levelC route triggered query souldBe {}', function () {
+                    router.trigger('/levelA/levelC');
+                    expect(route.query).to.deep.equal({});
                 });
 
                 it('levelA route triggered again should equal to LevelC Leaved', function () {

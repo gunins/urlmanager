@@ -349,7 +349,7 @@ like Node.</p>
         }
         <span class="hljs-keyword">var</span> subRoutes = binding.getRoutes();
         <span class="hljs-keyword">if</span> (subRoutes &amp;&amp; subRoutes.length &gt; <span class="hljs-number">0</span>) {
-            <span class="hljs-keyword">while</span>(subRoutes.length &gt; <span class="hljs-number">0</span>) {
+            <span class="hljs-keyword">while</span> (subRoutes.length &gt; <span class="hljs-number">0</span>) {
                 <span class="hljs-keyword">var</span> Route = subRoutes[<span class="hljs-number">0</span>],
                     binder = <span class="hljs-keyword">new</span> MatchBinder(binding.getFragment(location), params, <span class="hljs-keyword">this</span>.execute.bind(<span class="hljs-keyword">this</span>), binding.location)
                 Route(binder);
@@ -378,8 +378,8 @@ like Node.</p>
             <span class="hljs-keyword">this</span>.bindings.push(binding);
         }
 
-        <span class="hljs-keyword">if</span> (!isEmpty(params.query)) {
-            <span class="hljs-keyword">var</span> handler = binding.getQueryHandler();
+        <span class="hljs-keyword">var</span> handler = binding.getQueryHandler();
+        <span class="hljs-keyword">if</span> (handler) {
             <span class="hljs-keyword">var</span> args = [];
             <span class="hljs-keyword">this</span>.applyHandler(handler, args, params, location);
         }
