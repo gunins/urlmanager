@@ -333,7 +333,6 @@ like Node.</p>
     };
 
     Router.prototype.execute = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(binder)</span> </span>{
-        <span class="hljs-built_in">console</span>.log(binder)
         <span class="hljs-keyword">var</span> binderlocation = binder.location.split(<span class="hljs-string">'/'</span>),
             rootLocation = binder.params.root.split(<span class="hljs-string">'/'</span>),
             location = <span class="hljs-string">'/'</span> + rootLocation.splice(binderlocation.length, rootLocation.length -

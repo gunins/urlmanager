@@ -146,7 +146,6 @@
     };
 
     Router.prototype.execute = function (binder) {
-        console.log(binder)
         var binderlocation = binder.location.split('/'),
             rootLocation = binder.params.root.split('/'),
             location = '/' + rootLocation.splice(binderlocation.length, rootLocation.length -
