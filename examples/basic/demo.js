@@ -57,19 +57,26 @@ define(['router/Router'], function (Router) {
             console.log('levelA triggered')
         }).to(function () {
             console.log('levelA chained triggered')
-        }).setRoutes(function(route){
-            route.match('/levelR').to(function(){
+        }).setRoutes(function (route) {
+            route.match('/levelR').to(function () {
                 console.log('levelR triggered');
             });
             route.run();
 
-        }).setRoutes(function(route){
-            route.match('/levelN').to(function(){
+        }).setRoutes(function (route) {
+            route.match('/levelN').to(function () {
                 console.log('levelN triggered');
             });
             route.run();
 
         });
+
+        match('/levelf/:id', function(){}).setRoutes(function (route) {
+                route.match('/levelN').to(function () {
+                    console.log('levelN triggered');
+                });
+                route.run();
+            });
 
     });
 

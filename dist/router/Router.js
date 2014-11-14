@@ -146,7 +146,12 @@
     };
 
     Router.prototype.execute = function (binder) {
-        this.find(binder, binder.params.root.replace(binder.location, ''), binder.params);
+        console.log(binder)
+        var binderlocation = binder.location.split('/'),
+            rootLocation = binder.params.root.split('/'),
+            location = '/' + rootLocation.splice(binderlocation.length, rootLocation.length -
+                                                                        binderlocation.length).join('/');
+        this.find(binder, location, binder.params);
     };
 
     Router.prototype.onBinding = function (location, params, binding) {

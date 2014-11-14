@@ -79,7 +79,7 @@ module.exports = function (grunt) {
             base: {
                 hostname: "*",
                 port: "8000",
-                target: 'http://localhost:8000/tests/ts/',
+                target: 'http://localhost:8000/',
                 open: true
             }
         }
