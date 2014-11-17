@@ -120,7 +120,7 @@
     });
     describe('url manager tests', function () {
         describe('Changeroutes', function () {
-            describe('Static routes Changed with query in ASC order', function () {
+            describe('Static routes and lazy routes in ASC order', function () {
 
                 it('levelD  route triggered should equal to levelD', function () {
                     router.trigger('/levelD/levelE');
@@ -152,7 +152,7 @@
                 it('retrigger levelD/levelE lazy route triggered should equal to levelDE', function () {
 
                     router.trigger('/levelD/levelE');
-                    expect(route).to.deep.equal({levelD:'levelD', levelDE: 'levelDE'});
+                    expect(route).to.deep.equal({levelD: 'levelD', levelDE: 'levelDE'});
 
                 });
 
@@ -166,6 +166,10 @@
                     expect(route).to.deep.equal({levelR: 'levelR: 36'});
 
                 });
+            });
+
+            describe('Trigger queries in the routes', function () {
+
                 it('levelA route triggered should equal to levelA levelACh', function () {
                     router.trigger('/levelA');
                     expect(route).to.deep.equal({});
@@ -175,7 +179,6 @@
                     router.trigger('/levelA/levelC');
                     expect(route).to.deep.equal({levelC: 'levelC', query: {}});
                 });
-
                 it('levelA/levelC?a=5 route triggered query souldBe 5', function () {
                     router.trigger('/levelA/levelC?a=5');
                     expect(route.query).to.deep.equal({a: '5'});
@@ -195,6 +198,7 @@
                     expect(route).to.deep.equal({levelCLeaved: 'levelCLeaved'});
                 });
             });
+
             describe('Mixed Routes triggered in DESC Order', function () {
                 it('levelB/a/b/c/list/35 route triggered', function () {
                     router.trigger('levelB/a/b/c/list/35');
