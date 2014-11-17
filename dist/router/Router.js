@@ -154,9 +154,7 @@
     };
 
     Router.prototype.onBinding = function (location, params, binding) {
-
         binding.setOnBind(this.onBinding.bind(this, location, params, binding))
-
         this.runHandler(location, params, binding);
         var fragment = binding.getFragment(location);
         var subBinder = binding.getSubBinder();
