@@ -132,6 +132,14 @@ like Node.</p>
         <span class="hljs-keyword">this</span>.queryHandler = [];
         <span class="hljs-keyword">this</span>.routes = [];
     }
+    MatchBinding.prototype.onBind = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span></span>{};
+    MatchBinding.prototype.setOnBind = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(onBinding)</span></span>{
+        <span class="hljs-keyword">this</span>.onBind = onBinding
+    };
+    MatchBinding.prototype.rebind = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span></span>{
+        <span class="hljs-keyword">this</span>.onBind();
+    };
+    MatchBinding.prototype.onBind = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span></span>{};
 
     MatchBinding.prototype.setRoutes = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(routes)</span> </span>{
         <span class="hljs-keyword">this</span>.routes.push(routes);

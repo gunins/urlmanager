@@ -15,6 +15,8 @@
     var expect = chai.expect;
     var router = new Router;
     var route = {};
+    var matchLevel;
+    router.start();
 
     router.match(function (match) {
         //Nested Routes
@@ -66,6 +68,9 @@
             console.log('External B called')
 
         });
+    });
+    router.match(function (match) {
+
         //Another Route
         match('/levelA', function (match) {
             match('/levelC').to(function () {
@@ -86,25 +91,71 @@
         }).to(function () {
             route.levelACh = 'levelACh';
             console.log('levelA chained triggered')
-        }).setRoutes(function(routes){
-            routes.match('/levelR(/:id)').to(function(id){
-                route.levelR = 'levelR: '+id;
-                console.log('levelR triggered'+id);
+        }).setRoutes(function (routes) {
+            routes.match('/levelR(/:id)').to(function (id) {
+                route.levelR = 'levelR: ' + id;
+                console.log('levelR triggered' + id);
             });
             routes.run();
 
         });
 
+        //Another setRoutes CF
+        match('/levelC').setRoutes(function (routes) {
+            routes.match('/levelF').to(function () {
+                route.levelCF = 'levelCF'
+                console.log('levelCF triggered');
+            });
+            routes.run();
+
+        });
+
+        //TimeoutRoutes  setRoutes CF
+        matchLevel = match('/levelD').to(function () {
+            route.levelD = 'levelD'
+            console.log('levelD triggered');
+
+        });
+
     });
-    router.start();
-    /*
-     /levelB
-     levelB/a/b/c/list/35
-     levelB/a/b/c/table/35
-     */
     describe('url manager tests', function () {
         describe('Changeroutes', function () {
             describe('Static routes Changed with query in ASC order', function () {
+
+                it('levelD  route triggered should equal to levelD', function () {
+                    router.trigger('/levelD/levelE');
+                    expect(route).to.deep.equal({levelD: 'levelD'});
+                });
+
+                it('levelD/levelE lazy route triggered should equal to levelDE', function (done) {
+                    setTimeout(function () {
+                        matchLevel.setRoutes(function (routes) {
+                            routes.match('/levelE').to(function () {
+                                route.levelDE = 'levelDE'
+                                console.log('levelDE triggered');
+                            });
+                            routes.run();
+                        });
+                        matchLevel.rebind();
+                        expect(route).to.deep.equal({levelDE: 'levelDE'});
+                        done();
+                    }, 200)
+
+                });
+
+                it('levelC/levelF lazy route triggered should equal to levelCF', function () {
+                    router.trigger('/levelC/levelF/36');
+                    expect(route).to.deep.equal({levelCF: 'levelCF'});
+
+                });
+
+                it('retrigger levelD/levelE lazy route triggered should equal to levelDE', function () {
+
+                    router.trigger('/levelD/levelE');
+                    expect(route).to.deep.equal({levelD:'levelD', levelDE: 'levelDE'});
+
+                });
+
                 it('levelA/levelR lazy route triggered should equal to levelR and id = 35', function () {
                     router.trigger('/levelA/levelR/35');
                     expect(route).to.deep.equal({levelA: 'levelA', levelACh: 'levelACh', levelR: 'levelR: 35'});
@@ -120,10 +171,9 @@
                     expect(route).to.deep.equal({});
                 });
 
-
                 it('levelA/levelC route triggered should equal to levelA levelACh and query should be {}', function () {
                     router.trigger('/levelA/levelC');
-                    expect(route).to.deep.equal({levelC: 'levelC', query:{}});
+                    expect(route).to.deep.equal({levelC: 'levelC', query: {}});
                 });
 
                 it('levelA/levelC?a=5 route triggered query souldBe 5', function () {

@@ -27,9 +27,9 @@
     MatchBinder.prototype.match = function (pattern, mapHandler) {
         var binding = this.getMatchBinding(pattern, this.location);
         this.bindings.push(binding);
-        if (mapHandler) {
             var subBinder = this.getSubBinder(this.location + pattern);
             binding.setSubBinder(subBinder);
+        if (mapHandler) {
             mapHandler(subBinder.match.bind(subBinder));
         }
         return binding;

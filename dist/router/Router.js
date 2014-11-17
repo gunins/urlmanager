@@ -154,6 +154,9 @@
     };
 
     Router.prototype.onBinding = function (location, params, binding) {
+
+        binding.setOnBind(this.onBinding.bind(this, location, params, binding))
+
         this.runHandler(location, params, binding);
         var fragment = binding.getFragment(location);
         var subBinder = binding.getSubBinder();
@@ -170,7 +173,9 @@
                 subRoutes.shift();
             }
         }
+
     };
+
     Router.prototype.serialize = function (obj) {
         var str = [];
         for (var p in obj)

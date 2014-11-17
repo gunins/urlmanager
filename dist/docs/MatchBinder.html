@@ -124,9 +124,9 @@ like Node.</p>
     MatchBinder.prototype.match = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(pattern, mapHandler)</span> </span>{
         <span class="hljs-keyword">var</span> binding = <span class="hljs-keyword">this</span>.getMatchBinding(pattern, <span class="hljs-keyword">this</span>.location);
         <span class="hljs-keyword">this</span>.bindings.push(binding);
-        <span class="hljs-keyword">if</span> (mapHandler) {
             <span class="hljs-keyword">var</span> subBinder = <span class="hljs-keyword">this</span>.getSubBinder(<span class="hljs-keyword">this</span>.location + pattern);
             binding.setSubBinder(subBinder);
+        <span class="hljs-keyword">if</span> (mapHandler) {
             mapHandler(subBinder.match.bind(subBinder));
         }
         <span class="hljs-keyword">return</span> binding;

@@ -341,6 +341,9 @@ like Node.</p>
     };
 
     Router.prototype.onBinding = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(location, params, binding)</span> </span>{
+
+        binding.setOnBind(<span class="hljs-keyword">this</span>.onBinding.bind(<span class="hljs-keyword">this</span>, location, params, binding))
+
         <span class="hljs-keyword">this</span>.runHandler(location, params, binding);
         <span class="hljs-keyword">var</span> fragment = binding.getFragment(location);
         <span class="hljs-keyword">var</span> subBinder = binding.getSubBinder();
@@ -357,7 +360,9 @@ like Node.</p>
                 subRoutes.shift();
             }
         }
+
     };
+
     Router.prototype.serialize = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(obj)</span> </span>{
         <span class="hljs-keyword">var</span> str = [];
         <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> p <span class="hljs-keyword">in</span> obj)
