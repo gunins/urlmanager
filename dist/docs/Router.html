@@ -315,6 +315,7 @@ like Node.</p>
                     matched = loc.split(<span class="hljs-string">'/'</span>).splice(<span class="hljs-number">0</span>, binderLocation.length - pattern.length);
                     <span class="hljs-keyword">var</span> handler = binder.getLeaveHandler();
                     <span class="hljs-keyword">var</span> args = [];
+
                     <span class="hljs-keyword">this</span>.applyHandler(handler, args, params, location);
                     notValid.push(binder);
                 }

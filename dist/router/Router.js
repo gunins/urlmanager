@@ -128,6 +128,7 @@
                     matched = loc.split('/').splice(0, binderLocation.length - pattern.length);
                     var handler = binder.getLeaveHandler();
                     var args = [];
+
                     this.applyHandler(handler, args, params, location);
                     notValid.push(binder);
                 }
