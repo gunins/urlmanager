@@ -126,8 +126,9 @@
                 fragment = checkSegment(matched || loc.split('/'));
                 if (fragment) {
                     matched = loc.split('/').splice(0, binderLocation.length - pattern.length);
-                    var handler = binder.getLeaveHandler();
-                    var args = [];
+                    var handler = binder.getLeaveHandler(),
+                        args = [];
+                    binder.setOnBind();
 
                     this.applyHandler(handler, args, params, location);
                     notValid.push(binder);
