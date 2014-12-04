@@ -127,8 +127,23 @@
                     expect(route).to.deep.equal({levelD: 'levelD'});
                 });
 
-                it('levelD/levelE lazy route triggered should equal to levelDE', function (done) {
+                it('levelD/levelF lazy route triggered should equal to levelDF', function () {
+                    router.trigger('/levelD/levelF');
+                    matchLevel.setRoutes(function (routes) {
+                        routes.match('/levelF').to(function () {
+                            route.levelDF = 'levelDF'
+                            console.log('levelDF triggered');
+                        });
+                        routes.run();
+                    });
+                    matchLevel.rebind();
+                    expect(route).to.deep.equal({levelDF: 'levelDF'});
+
+                });
+
+                it('levelD/levelE lazy route triggered after Timeout should equal to levelDE', function (done) {
                     setTimeout(function () {
+                        router.trigger('/levelD/levelE');
                         matchLevel.setRoutes(function (routes) {
                             routes.match('/levelE').to(function () {
                                 route.levelDE = 'levelDE'
@@ -137,9 +152,10 @@
                             routes.run();
                         });
                         matchLevel.rebind();
+                        console.log(route);
                         expect(route).to.deep.equal({levelDE: 'levelDE'});
                         done();
-                    }, 200)
+                    }, 200);
 
                 });
 
