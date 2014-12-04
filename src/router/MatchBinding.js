@@ -35,14 +35,17 @@
         this.queryHandler = [];
         this.routes = [];
     }
-    MatchBinding.prototype.onBind = function(){};
-    MatchBinding.prototype.setOnBind = function(onBinding){
+
+    MatchBinding.prototype.onBind = function () {
+    };
+    MatchBinding.prototype.setOnBind = function (onBinding) {
         this.onBind = onBinding
     };
-    MatchBinding.prototype.rebind = function(){
-        this.onBind();
+    MatchBinding.prototype.rebind = function () {
+        if (this.onBind !== undefined) {
+            this.onBind();
+        }
     };
-    MatchBinding.prototype.onBind = function(){};
 
     MatchBinding.prototype.setRoutes = function (routes) {
         this.routes.push(routes);
