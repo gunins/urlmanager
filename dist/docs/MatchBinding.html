@@ -107,7 +107,7 @@ like Node.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        root.UrlManager = root.UrlManager || {};
+            <div class="content"><div class='highlight'><pre>        root.UrlManager              = root.UrlManager || {};
         root.UrlManager.MatchBinding = factory();
     }
 }(<span class="hljs-keyword">this</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> </span>{
@@ -116,29 +116,29 @@ like Node.</p>
             <span class="hljs-keyword">this</span>.pattern = location = pattern.replace(<span class="hljs-regexp">/^\(\/\)/g</span>, <span class="hljs-string">''</span>).replace(<span class="hljs-regexp">/^\/|$/g</span>, <span class="hljs-string">''</span>);
         } <span class="hljs-keyword">else</span> {
             <span class="hljs-keyword">this</span>.pattern = pattern;
-            location = (location + pattern);
+            location     = (location + pattern);
         }
         <span class="hljs-keyword">this</span>.location = location.replace(<span class="hljs-regexp">/\((.*?)\)/g</span>, <span class="hljs-string">'$1'</span>).replace(<span class="hljs-regexp">/^\/|$/g</span>, <span class="hljs-string">''</span>);
 
         <span class="hljs-keyword">var</span> route = <span class="hljs-keyword">this</span>.pattern.replace(MatchBinding.ESCAPE_PARAM, <span class="hljs-string">'\\$&amp;'</span>)
             .replace(MatchBinding.OPTIONAL_PARAM, <span class="hljs-string">'(?:$1)?'</span>)
             .replace(MatchBinding.NAMED_PARAM, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(match, optional)</span> </span>{
-                <span class="hljs-keyword">return</span> optional ? match : <span class="hljs-string">'([^\/]+)'</span>;
-            }).replace(MatchBinding.SPLAT_PARAM, <span class="hljs-string">'(.*?)'</span>);
+                         <span class="hljs-keyword">return</span> optional ? match : <span class="hljs-string">'([^\/]+)'</span>;
+                     }).replace(MatchBinding.SPLAT_PARAM, <span class="hljs-string">'(.*?)'</span>);
 
         <span class="hljs-keyword">this</span>.patternRegExp = <span class="hljs-keyword">new</span> <span class="hljs-built_in">RegExp</span>(<span class="hljs-string">'^'</span> + route);
-        <span class="hljs-keyword">this</span>.routeHandler = [];
-        <span class="hljs-keyword">this</span>.leaveHandler = [];
-        <span class="hljs-keyword">this</span>.queryHandler = [];
-        <span class="hljs-keyword">this</span>.routes = [];
+        <span class="hljs-keyword">this</span>.routeHandler  = [];
+        <span class="hljs-keyword">this</span>.leaveHandler  = [];
+        <span class="hljs-keyword">this</span>.queryHandler  = [];
+        <span class="hljs-keyword">this</span>.routes        = [];
     }
 
-    MatchBinding.prototype.onBind = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> </span>{
+    MatchBinding.prototype.onBind    = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> </span>{
     };
     MatchBinding.prototype.setOnBind = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(onBinding)</span> </span>{
         <span class="hljs-keyword">this</span>.onBind = onBinding
     };
-    MatchBinding.prototype.rebind = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> </span>{
+    MatchBinding.prototype.rebind    = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> </span>{
         <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.onBind !== <span class="hljs-literal">undefined</span>) {
             <span class="hljs-keyword">this</span>.onBind();
         }
@@ -153,44 +153,51 @@ like Node.</p>
         <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.routes;
     };
 
-    MatchBinding.prototype.to = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(routeHandler)</span> </span>{
+    MatchBinding.prototype.to              = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(routeHandler)</span> </span>{
         <span class="hljs-keyword">this</span>.routeHandler.push(routeHandler);
         <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
     };
-    MatchBinding.prototype.leave = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(leaveHandler)</span> </span>{
+    MatchBinding.prototype.leave           = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(leaveHandler)</span> </span>{
         <span class="hljs-keyword">this</span>.leaveHandler.push(leaveHandler);
         <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
     };
-    MatchBinding.prototype.query = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(queryHandler)</span> </span>{
+    MatchBinding.prototype.query           = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(queryHandler)</span> </span>{
         <span class="hljs-keyword">this</span>.queryHandler.push(queryHandler);
         <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
     };
-    MatchBinding.prototype.test = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(location)</span> </span>{
+    MatchBinding.prototype.remove          = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> </span>{
+        <span class="hljs-keyword">this</span>.routes.splice(<span class="hljs-number">0</span>, <span class="hljs-keyword">this</span>.routes.length);
+        <span class="hljs-keyword">this</span>.routeHandler.splice(<span class="hljs-number">0</span>, <span class="hljs-keyword">this</span>.routeHandler.length);
+        <span class="hljs-keyword">this</span>.leaveHandler.splice(<span class="hljs-number">0</span>, <span class="hljs-keyword">this</span>.leaveHandler.length);
+        <span class="hljs-keyword">this</span>.queryHandler.splice(<span class="hljs-number">0</span>, <span class="hljs-keyword">this</span>.queryHandler.length);
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+    };
+    MatchBinding.prototype.test            = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(location)</span> </span>{
         <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.patternRegExp.test(location);
     };
-    MatchBinding.prototype.getFragment = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(location)</span> </span>{
+    MatchBinding.prototype.getFragment     = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(location)</span> </span>{
         <span class="hljs-keyword">var</span> subLocation = <span class="hljs-keyword">this</span>.applyParams(location);
         <span class="hljs-keyword">return</span> location.replace(subLocation, <span class="hljs-string">''</span>);
     };
-    MatchBinding.prototype.applyParams = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(location)</span> </span>{
-        <span class="hljs-keyword">var</span> matches = <span class="hljs-keyword">this</span>.pattern.replace(<span class="hljs-regexp">/\((.*?)\)/g</span>, <span class="hljs-string">'$1'</span>).split(<span class="hljs-string">'/'</span>);
+    MatchBinding.prototype.applyParams     = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(location)</span> </span>{
+        <span class="hljs-keyword">var</span> matches  = <span class="hljs-keyword">this</span>.pattern.replace(<span class="hljs-regexp">/\((.*?)\)/g</span>, <span class="hljs-string">'$1'</span>).split(<span class="hljs-string">'/'</span>);
         <span class="hljs-keyword">var</span> matches2 = location.split(<span class="hljs-string">'/'</span>);
         <span class="hljs-keyword">return</span> matches2.splice(<span class="hljs-number">0</span>, matches.length).join(<span class="hljs-string">'/'</span>);
     };
-    MatchBinding.prototype.extractParams = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(fragment)</span> </span>{
+    MatchBinding.prototype.extractParams   = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(fragment)</span> </span>{
         <span class="hljs-keyword">var</span> params = <span class="hljs-keyword">this</span>.patternRegExp.exec(fragment).slice(<span class="hljs-number">1</span>);
         <span class="hljs-keyword">return</span> params.map(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(param)</span> </span>{
             <span class="hljs-keyword">return</span> param ? <span class="hljs-built_in">decodeURIComponent</span>(param) : <span class="hljs-literal">null</span>;
         });
     };
-    MatchBinding.prototype.setSubBinder = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(subBinder)</span> </span>{
+    MatchBinding.prototype.setSubBinder    = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(subBinder)</span> </span>{
         <span class="hljs-keyword">this</span>.subBinder = subBinder;
         <span class="hljs-keyword">return</span> subBinder;
     };
-    MatchBinding.prototype.getSubBinder = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> </span>{
+    MatchBinding.prototype.getSubBinder    = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> </span>{
         <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.subBinder;
     };
-    MatchBinding.prototype.getHandler = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> </span>{
+    MatchBinding.prototype.getHandler      = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> </span>{
         <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.routeHandler;
     };
     MatchBinding.prototype.getLeaveHandler = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> </span>{
@@ -201,9 +208,9 @@ like Node.</p>
     };
 
     MatchBinding.OPTIONAL_PARAM = <span class="hljs-regexp">/\((.*?)\)/g</span>;
-    MatchBinding.NAMED_PARAM = <span class="hljs-regexp">/(\(\?)?:\w+/g</span>;
-    MatchBinding.SPLAT_PARAM = <span class="hljs-regexp">/\*\w+/g</span>;
-    MatchBinding.ESCAPE_PARAM = <span class="hljs-regexp">/[\-{}\[\]+?.,\\\^$|#\s]/g</span>;
+    MatchBinding.NAMED_PARAM    = <span class="hljs-regexp">/(\(\?)?:\w+/g</span>;
+    MatchBinding.SPLAT_PARAM    = <span class="hljs-regexp">/\*\w+/g</span>;
+    MatchBinding.ESCAPE_PARAM   = <span class="hljs-regexp">/[\-{}\[\]+?.,\\\^$|#\s]/g</span>;
 
     <span class="hljs-keyword">return</span> MatchBinding;
 }));</pre></div></div>
