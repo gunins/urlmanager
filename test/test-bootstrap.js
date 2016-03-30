@@ -34,11 +34,42 @@ if (Function.prototype.bind === undefined) {
         }
     })();
 }
+
+function testGlobal(method) {
+    return this[method] === undefined;
+}
+function testEs6(done, methods) {
+    var global = this;
+    if (methods.filter(testGlobal.bind(global)).length > 0) {
+        require(['babel/polyfill'], function () {
+            done();
+        });
+    } else {
+        done();
+    }
+};
+
+var check = function () {
+    'use strict';
+
+    if (typeof Symbol == 'undefined') return false;
+    try {
+        eval('class Foo {}');
+        eval('var bar = (x) => x+1');
+    } catch (e) {
+        return false;
+    }
+
+    return true;
+}();
+
+var target = check ? 'es6' : 'es5';
+
 require.config({
-    baseUrl: '../dist',
+    baseUrl: '../dist/'+target+'/prod',
     paths: {
-        test: '../test',
-        chai: "../node_modules/chai/chai"
+        test: '../../../test',
+        chai: "../../../node_modules/chai/chai"
     }
 });
 
@@ -46,15 +77,20 @@ mocha.setup({
     ui: 'bdd'
 });
 
-require([
-    testPathname
-], function () {
+mocha.ui('bdd');
+testEs6(function run() {
+        require([
+            testPathname
+        ], function () {
 
-    if (window.mochaPhantomJS) {
-        mochaPhantomJS.run();
-    }
-    else {
-        mocha.run();
-    }
+            if (window.mochaPhantomJS) {
+                window.mochaPhantomJS.run();
+            }
+            else {
+                mocha.run();
+            }
 
-});
+        });
+    },
+    //Add there list of es6 feature you yse, for checking if need polyfill.
+    ['Map', 'Set', 'Symbol'])

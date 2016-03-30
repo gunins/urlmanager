@@ -37,7 +37,7 @@
         var binding = this.getMatchBinding(pattern, this.location);
         this.bindings.push(binding);
 
-        var subBinder = (pattern) ? this.getSubBinder(this.location + (pattern || '')) : this;
+        var subBinder = this.getSubBinder(this.location + (pattern || ''));
         binding.setSubBinder(subBinder);
 
         if (mapHandler) {
