@@ -14,7 +14,7 @@
 }(this, function (chai, Router) {
     var expect = chai.expect;
     var router = new Router;
-    var route = {};
+    var route  = {};
     var matchLevel;
     router.start();
 
@@ -51,7 +51,11 @@
 
                 // Triggering and return particullar url segments
             }).to(function (a, b, c, params) {
-                route.levelOptC = {a: a, b: b, c: c};
+                route.levelOptC = {
+                    a: a,
+                    b: b,
+                    c: c
+                };
                 console.log('leveloptC', a, b, c, params.getQuery())
             }).leave(function () {
                 route.levelOptCLeave = 'leaved';
@@ -83,7 +87,7 @@
                 //    Triggering everytime params is changed
             }).query(function (params) {
                 route.query = params.getQuery();
-                console.log(params.getQuery());
+                console.log('query', params.getQuery());
             });
         }).to(function () {
             route.levelA = 'levelA';
@@ -92,9 +96,12 @@
             route.levelACh = 'levelACh';
             console.log('levelA chained triggered')
         }).setRoutes(function (routes) {
-            routes.match('/levelR(/:id)').to(function (id) {
+           var innerMatch = routes.match('/levelR(/:id)').to(function (id) {
                 route.levelR = 'levelR: ' + id;
                 console.log('levelR triggered' + id);
+               if(id === 'remove'){
+                   innerMatch.remove();
+               }
             });
             routes.run();
 
@@ -168,18 +175,37 @@
                 it('retrigger levelD/levelE lazy route triggered should equal to levelDE', function () {
 
                     router.trigger('/levelD/levelE');
-                    expect(route).to.deep.equal({levelD: 'levelD', levelDE: 'levelDE'});
+                    expect(route).to.deep.equal({
+                        levelD:  'levelD',
+                        levelDE: 'levelDE'
+                    });
 
                 });
 
                 it('levelA/levelR lazy route triggered should equal to levelR and id = 35', function () {
                     router.trigger('/levelA/levelR/35');
-                    expect(route).to.deep.equal({levelA: 'levelA', levelACh: 'levelACh', levelR: 'levelR: 35'});
+                    expect(route).to.deep.equal({
+                        levelA:   'levelA',
+                        levelACh: 'levelACh',
+                        levelR:   'levelR: 35'
+                    });
 
                 });
                 it('levelA/levelR lazy route triggered should equal to levelR and id = 36', function () {
                     router.trigger('/levelA/levelR/36');
                     expect(route).to.deep.equal({levelR: 'levelR: 36'});
+
+                });
+                it('levelA/levelR Route should be removed and not trigger any more', function () {
+                    router.trigger('/levelA/levelR/remove');
+                    expect(route).to.deep.equal({
+                        levelR:   'levelR: remove'
+                    });
+
+                    router.trigger('/levelA/levelR/48');
+                    expect(route).to.deep.equal({
+                        levelR:   'levelR: remove'
+                    });
 
                 });
             });
@@ -193,7 +219,10 @@
 
                 it('levelA/levelC route triggered should equal to levelA levelACh and query should be {}', function () {
                     router.trigger('/levelA/levelC');
-                    expect(route).to.deep.equal({levelC: 'levelC', query: {}});
+                    expect(route).to.deep.equal({
+                        levelC: 'levelC',
+                        query:  {}
+                    });
                 });
                 it('levelA/levelC?a=5 route triggered query souldBe 5', function () {
                     router.trigger('/levelA/levelC?a=5');
@@ -219,53 +248,61 @@
                 it('levelB/a/b/c/list/35 route triggered', function () {
                     router.trigger('levelB/a/b/c/list/35');
                     var compare =
-                    {
-                        levelBEx: 'levelBEx',
-                        levelB: 'levelB',
-                        levelOptC: {a: 'a', b: 'b', c: 'c'},
-                        list: 'list',
-                        listId: '35'
-                    };
+                        {
+                            levelBEx:  'levelBEx',
+                            levelB:    'levelB',
+                            levelOptC: {
+                                a: 'a',
+                                b: 'b',
+                                c: 'c'
+                            },
+                            list:      'list',
+                            listId:    '35'
+                        };
                     expect(route).to.deep.equal(compare);
                 });
                 it('levelB/a/b/c/list/36 route triggered, only id is changed', function () {
                     router.trigger('levelB/a/b/c/list/36');
                     var compare =
-                    {
-                        listId: '36',
-                        listLeave: 'leave'
-                    };
+                        {
+                            listId:    '36',
+                            listLeave: 'leave'
+                        };
 
                     expect(route).to.deep.equal(compare);
                 });
                 it('levelB/a/b/c/table/36 route triggered, only id is changed', function () {
                     router.trigger('levelB/a/b/c/table/36');
                     var compare =
-                    {
-                        table: 'table',
-                        tableId: '36',
-                        listLeave: 'leave'
-                    };
+                        {
+                            table:     'table',
+                            tableId:   '36',
+                            listLeave: 'leave'
+                        };
                     expect(route).to.deep.equal(compare);
                 });
                 it('levelB/a/b/c/table/35 route triggered, only id is changed', function () {
                     router.trigger('levelB/a/b/c/table/35');
                     var compare =
-                    {
-                        tableId: '35'
-                    };
+                        {
+                            tableId: '35'
+                        };
 
                     expect(route).to.deep.equal(compare);
                 });
                 it('levelB/a/b/d/table/35 route after levelB triggered', function () {
                     router.trigger('levelB/a/b/d/table/35');
                     var compare =
-                    {
-                        levelOptCLeave: 'leaved',
-                        levelOptC: {a: 'a', b: 'b', c: 'd'},
-                        table: 'table',
-                        tableId: '35'
-                    };
+                        {
+                            levelOptCLeave: 'leaved',
+                            levelOptC:      {
+                                a: 'a',
+                                b: 'b',
+                                c: 'd'
+                            },
+                            table:          'table',
+                            tableId:        '35'
+                        };
                     expect(route).to.deep.equal(compare);
                 });
                 it('levelB/a/b/d route triggered, nothing changed', function () {

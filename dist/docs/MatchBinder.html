@@ -56,7 +56,7 @@
               
             </div>
             
-            <div class="content"><div class='highlight'><pre>(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(root, factory)</span> </span>{
+            <div class="content"><div class='highlight'><pre>(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(root, factory)</span> </span>{
 
     <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> define === <span class="hljs-string">'function'</span> &amp;&amp; define.amd) {</pre></div></div>
             
@@ -112,7 +112,7 @@ like Node.</p>
             <div class="content"><div class='highlight'><pre>        root.UrlManager = root.UrlManager || {};
         root.UrlManager.MatchBinder = factory(root.UrlManager.MatchBinding);
     }
-}(<span class="hljs-keyword">this</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(MatchBinding)</span> </span>{
+}(<span class="hljs-keyword">this</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(MatchBinding)</span> </span>{
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">MatchBinder</span><span class="hljs-params">(location, params, command, root)</span> </span>{
         <span class="hljs-keyword">this</span>.bindings = [];
         <span class="hljs-keyword">this</span>.location = root || location || <span class="hljs-string">''</span>;
@@ -121,28 +121,39 @@ like Node.</p>
 
     }
 
-    MatchBinder.prototype.match = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(pattern, mapHandler)</span> </span>{
+    MatchBinder.prototype.match = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(pattern, mapHandler)</span> </span>{
+
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> pattern === <span class="hljs-string">'function'</span>) {
+            mapHandler = pattern;
+            pattern = <span class="hljs-literal">false</span>;
+        }
+        <span class="hljs-keyword">if</span> (pattern === <span class="hljs-string">''</span>) {
+            pattern = <span class="hljs-literal">false</span>;
+        }
+
         <span class="hljs-keyword">var</span> binding = <span class="hljs-keyword">this</span>.getMatchBinding(pattern, <span class="hljs-keyword">this</span>.location);
         <span class="hljs-keyword">this</span>.bindings.push(binding);
-            <span class="hljs-keyword">var</span> subBinder = <span class="hljs-keyword">this</span>.getSubBinder(<span class="hljs-keyword">this</span>.location + pattern);
-            binding.setSubBinder(subBinder);
+
+        <span class="hljs-keyword">var</span> subBinder = (pattern) ? <span class="hljs-keyword">this</span>.getSubBinder(<span class="hljs-keyword">this</span>.location + (pattern || <span class="hljs-string">''</span>)) : <span class="hljs-keyword">this</span>;
+        binding.setSubBinder(subBinder);
+
         <span class="hljs-keyword">if</span> (mapHandler) {
             mapHandler(subBinder.match.bind(subBinder));
         }
         <span class="hljs-keyword">return</span> binding;
     };
-    MatchBinder.prototype.getSubBinder = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(pattern)</span> </span>{
+    MatchBinder.prototype.getSubBinder = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(pattern)</span> </span>{
         <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> MatchBinder(pattern);
     };
-    MatchBinder.prototype.getMatchBinding = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(pattern, root)</span> </span>{
+    MatchBinder.prototype.getMatchBinding = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(pattern, root)</span> </span>{
         <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> MatchBinding(pattern, root);
     };
-    MatchBinder.prototype.filter = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(location)</span> </span>{
-        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.bindings.filter(<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">(binding)</span> </span>{
+    MatchBinder.prototype.filter = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(location)</span> </span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.bindings.filter(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(binding)</span> </span>{
             <span class="hljs-keyword">return</span> binding.test(location);
         });
     };
-    MatchBinder.prototype.run = <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-params">()</span> </span>{
+    MatchBinder.prototype.run = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
         <span class="hljs-keyword">this</span>.command(<span class="hljs-keyword">this</span>);
     };
     <span class="hljs-keyword">return</span> MatchBinder;

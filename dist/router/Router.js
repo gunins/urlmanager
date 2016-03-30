@@ -198,8 +198,7 @@
 
         var handler = binding.getQueryHandler();
         if (handler) {
-            var args = [];
-            this.applyHandler(handler, args, params, location);
+            this.applyHandler(handler, [], params, location);
         }
 
     };

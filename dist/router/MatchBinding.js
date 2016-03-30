@@ -15,6 +15,7 @@
     }
 }(this, function () {
     function MatchBinding(pattern, location) {
+
         if (location === '') {
             this.pattern = location = pattern.replace(/^\(\/\)/g, '').replace(/^\/|$/g, '');
         } else {

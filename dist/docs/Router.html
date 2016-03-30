@@ -385,8 +385,7 @@ like Node.</p>
 
         <span class="hljs-keyword">var</span> handler = binding.getQueryHandler();
         <span class="hljs-keyword">if</span> (handler) {
-            <span class="hljs-keyword">var</span> args = [];
-            <span class="hljs-keyword">this</span>.applyHandler(handler, args, params, location);
+            <span class="hljs-keyword">this</span>.applyHandler(handler, [], params, location);
         }
 
     };

@@ -1,4 +1,4 @@
-(function (root, factory) {
+(function(root, factory) {
 
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
@@ -15,7 +15,7 @@
         root.UrlManager = root.UrlManager || {};
         root.UrlManager.MatchBinder = factory(root.UrlManager.MatchBinding);
     }
-}(this, function (MatchBinding) {
+}(this, function(MatchBinding) {
     function MatchBinder(location, params, command, root) {
         this.bindings = [];
         this.location = root || location || '';
@@ -24,28 +24,39 @@
 
     }
 
-    MatchBinder.prototype.match = function (pattern, mapHandler) {
+    MatchBinder.prototype.match = function(pattern, mapHandler) {
+
+        if (typeof pattern === 'function') {
+            mapHandler = pattern;
+            pattern = false;
+        }
+        if (pattern === '') {
+            pattern = false;
+        }
+
         var binding = this.getMatchBinding(pattern, this.location);
         this.bindings.push(binding);
-            var subBinder = this.getSubBinder(this.location + pattern);
-            binding.setSubBinder(subBinder);
+
+        var subBinder = this.getSubBinder(this.location + (pattern || ''));
+        binding.setSubBinder(subBinder);
+
         if (mapHandler) {
             mapHandler(subBinder.match.bind(subBinder));
         }
         return binding;
     };
-    MatchBinder.prototype.getSubBinder = function (pattern) {
+    MatchBinder.prototype.getSubBinder = function(pattern) {
         return new MatchBinder(pattern);
     };
-    MatchBinder.prototype.getMatchBinding = function (pattern, root) {
+    MatchBinder.prototype.getMatchBinding = function(pattern, root) {
         return new MatchBinding(pattern, root);
     };
-    MatchBinder.prototype.filter = function (location) {
-        return this.bindings.filter(function (binding) {
+    MatchBinder.prototype.filter = function(location) {
+        return this.bindings.filter(function(binding) {
             return binding.test(location);
         });
     };
-    MatchBinder.prototype.run = function () {
+    MatchBinder.prototype.run = function() {
         this.command(this);
     };
     return MatchBinder;

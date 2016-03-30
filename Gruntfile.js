@@ -57,7 +57,7 @@ module.exports = function (grunt) {
                 base: 'test',
                 main: 'test-bootstrap',
                 requireLib: '../node_modules/requirejs/require.js',
-                files: ['./*.js']
+                files: ['./routerTest.js']
             },
             target: {}
         },
@@ -66,7 +66,7 @@ module.exports = function (grunt) {
                 reporter: 'spec',
                 captureFile: 'target/results.txt', // Optionally capture the reporter output to a file
                 quiet: false, // Optionally suppress output to standard out (defaults to false)
-                clearRequireCache: false // Optionally clear the require cache before running tests (defaults to false)
+                clearRequireCache: true // Optionally clear the require cache before running tests (defaults to false)
             },
             test: {
                 src: ['test/routerTest.js']
