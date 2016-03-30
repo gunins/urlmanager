@@ -16,48 +16,57 @@
         root.UrlManager.MatchBinder = factory(root.UrlManager.MatchBinding);
     }
 }(this, function(MatchBinding) {
-    function MatchBinder(location, params, command, root) {
-        this.bindings = [];
-        this.location = root || location || '';
-        this.command = command;
-        this.params = params;
+    'use strict';
 
+    class MatchBinder {
+        constructor(location, params, command, root) {
+            this.bindings = [];
+            this.location = root || location || '';
+            this.command = command;
+            this.params = params;
+
+        }
+
+        match(pattern, mapHandler) {
+
+            if (typeof pattern === 'function') {
+                mapHandler = pattern;
+                pattern = false;
+            }
+            if (pattern === '') {
+                pattern = false;
+            }
+
+            let binding = this.getMatchBinding(pattern, this.location);
+            this.bindings.push(binding);
+
+            let subBinder = this.getSubBinder(this.location + (pattern || ''));
+            binding.setSubBinder(subBinder);
+
+            if (mapHandler) {
+                mapHandler(subBinder.match.bind(subBinder));
+            }
+            return binding;
+        };
+
+        getSubBinder(pattern) {
+            return new MatchBinder(pattern);
+        };
+
+        getMatchBinding(pattern, root) {
+            return new MatchBinding(pattern, root);
+        };
+
+        filter(location) {
+            return this.bindings.filter(function(binding) {
+                return binding.test(location);
+            });
+        };
+
+        run() {
+            this.command(this);
+        };
     }
 
-    MatchBinder.prototype.match = function(pattern, mapHandler) {
-
-        if (typeof pattern === 'function') {
-            mapHandler = pattern;
-            pattern = false;
-        }
-        if (pattern === '') {
-            pattern = false;
-        }
-
-        var binding = this.getMatchBinding(pattern, this.location);
-        this.bindings.push(binding);
-
-        var subBinder = this.getSubBinder(this.location + (pattern || ''));
-        binding.setSubBinder(subBinder);
-
-        if (mapHandler) {
-            mapHandler(subBinder.match.bind(subBinder));
-        }
-        return binding;
-    };
-    MatchBinder.prototype.getSubBinder = function(pattern) {
-        return new MatchBinder(pattern);
-    };
-    MatchBinder.prototype.getMatchBinding = function(pattern, root) {
-        return new MatchBinding(pattern, root);
-    };
-    MatchBinder.prototype.filter = function(location) {
-        return this.bindings.filter(function(binding) {
-            return binding.test(location);
-        });
-    };
-    MatchBinder.prototype.run = function() {
-        this.command(this);
-    };
     return MatchBinder;
 }));
