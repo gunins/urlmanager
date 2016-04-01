@@ -31,14 +31,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         // if the other array is a falsy value, return
         if (!array) return false;
         // compare lengths - can save a lot of time
-        if (this.length != array.length) return false;
+        if (this.length !== array.length) return false;
 
         for (var i = 0, l = this.length; i < l; i++) {
             // Check if we have nested arrays
             if (this[i] instanceof Array && array[i] instanceof Array) {
                 // recurse into the nested arrays
                 if (!this[i].equals(array[i])) return false;
-            } else if (this[i] != array[i]) {
+            } else if (this[i] !== array[i]) {
                 // Warning - two different object instances will never be equal: {x:20} != {x:20}
                 return false;
             }
@@ -63,7 +63,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         });
     }
 
-    function getLocation(fragment, isQuery, params, location) {
+    function _getLocation(fragment, isQuery, params, location) {
         var current = params.root.substring(0, params.root.length - location.length),
             newQuery = void 0;
         fragment = fragment || '';
@@ -78,22 +78,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }
 
     var Router = function () {
-        function Router() {
+        function Router(location) {
             _classCallCheck(this, Router);
 
-            this.root = this.getBinder();
+            this.root = this.getBinder(location);
             this.bindings = [];
         }
 
         _createClass(Router, [{
             key: 'getBinder',
-            value: function getBinder() {
-                return new MatchBinder();
-            }
-        }, {
-            key: 'match',
-            value: function match(mapHandler) {
-                mapHandler(this.root.match.bind(this.root));
+            value: function getBinder(location) {
+                return new MatchBinder(location);
             }
         }, {
             key: 'trigger',
@@ -121,14 +116,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                             root: loc,
                             query: query
                         },
-                            notValid = [],
                             matched = false;
 
-                        _this.bindings.forEach(function (binder) {
+                        _this.bindings = _this.bindings.filter(function (binder) {
                             var fragment = void 0,
                                 pattern = binder.pattern.replace(/\((.*?)\)/g, '$1').replace(/^\//, '').split('/'),
                                 binderLocation = binder.location.split('/'),
                                 prevLoc = binder.prevLoc.replace(/^\//, '').split('/'),
+                                valid = true,
                                 checkSegment = function checkSegment(link) {
                                 var currSegment = link.splice(binderLocation.length - pattern.length, pattern.length),
                                     prevSegment = prevLoc.splice(0, pattern.length);
@@ -137,18 +132,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                             fragment = checkSegment(matched || loc.split('/'));
                             if (fragment) {
                                 matched = loc.split('/').splice(0, binderLocation.length - pattern.length);
-                                var handler = binder.getLeaveHandler(),
-                                    args = [];
+                                var handler = binder.getLeaveHandler();
                                 binder.setOnBind();
 
-                                this.applyHandler(handler, args, params, location);
-                                notValid.push(binder);
+                                _this.applyHandler(handler, [], params, location);
+                                valid = false;
                             }
-                        }.bind(_this));
-
-                        notValid.forEach(function (binder) {
-                            this.bindings.splice(this.bindings.indexOf(binder), 1);
-                        }.bind(_this));
+                            return valid;
+                        });
 
                         _this.find(_this.root, loc, params);
                     })();
@@ -157,8 +148,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }, {
             key: 'find',
             value: function find(binder, location, params) {
+                var _this2 = this;
+
                 var bindings = binder.filter(location);
-                bindings.forEach(this.onBinding.bind(this, location, params));
+                bindings.forEach(function (binding) {
+                    return _this2.onBinding(location, params, binding);
+                });
             }
         }, {
             key: 'execute',
@@ -221,18 +216,25 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }, {
             key: 'applyHandler',
             value: function applyHandler(handlers, args, params, location) {
+                var _this3 = this;
+
                 if (handlers && handlers.length > 0) {
                     handlers.forEach(function (handler) {
-                        handler.apply(this, args.concat({
+                        handler.apply(_this3, args.concat({
                             getQuery: function getQuery() {
                                 return params.query;
                             },
-                            getLocation: function (fragment, isQuery) {
-                                return getLocation.call(this, fragment, isQuery, params, location);
-                            }.bind(this)
+                            getLocation: function getLocation(fragment, isQuery) {
+                                return _getLocation.call(this, fragment, isQuery, params, location);
+                            }
                         }));
-                    }.bind(this));
+                    });
                 }
+            }
+        }, {
+            key: 'match',
+            value: function match(mapHandler) {
+                mapHandler(this.root.match.bind(this.root));
             }
         }, {
             key: 'start',

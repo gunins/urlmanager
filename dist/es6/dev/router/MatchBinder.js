@@ -17,7 +17,7 @@
     }
 }(this, function(MatchBinding) {
     'use strict';
-    
+
     class MatchBinder {
         constructor(location, params, command, root) {
             this.bindings = [];

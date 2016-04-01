@@ -35,6 +35,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 location = location + pattern;
             }
             this.location = location.replace(/\((.*?)\)/g, '$1').replace(/^\/|$/g, '');
+            console.log(this.location, this.pattern);
 
             var route = this.pattern.replace(MatchBinding.ESCAPE_PARAM, '\\$&').replace(MatchBinding.OPTIONAL_PARAM, '(?:$1)?').replace(MatchBinding.NAMED_PARAM, function (match, optional) {
                 return optional ? match : '([^\/]+)';

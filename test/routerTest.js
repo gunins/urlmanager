@@ -1,3 +1,4 @@
+/*global describe, it*/
 (function(root, factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
@@ -40,11 +41,12 @@
         module.exports = factory(require('chai'), require('../dist/' + target + '/dev/router/Router'));
     }
 }(this, function(chai, Router) {
+    'use strict';
+
     var expect = chai.expect;
     var router = new Router;
     var route = {};
     var matchLevel;
-    router.start();
 
     router.match(function(match) {
         //Nested Routes
@@ -153,6 +155,8 @@
         });
 
     });
+
+    router.start();
     describe('url manager tests', function() {
         describe('Changeroutes', function() {
             describe('Static routes and lazy routes in ASC order', function() {

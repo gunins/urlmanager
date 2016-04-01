@@ -123,6 +123,7 @@ like Node.</p>
                 location = (location + pattern);
             }
             <span class="hljs-keyword">this</span>.location = location.replace(<span class="hljs-regexp">/\((.*?)\)/g</span>, <span class="hljs-string">'$1'</span>).replace(<span class="hljs-regexp">/^\/|$/g</span>, <span class="hljs-string">''</span>);
+            <span class="hljs-built_in">console</span>.log(<span class="hljs-keyword">this</span>.location, <span class="hljs-keyword">this</span>.pattern);
 
             <span class="hljs-keyword">let</span> route = <span class="hljs-keyword">this</span>.pattern.replace(MatchBinding.ESCAPE_PARAM, <span class="hljs-string">'\\$&amp;'</span>)
                 .replace(MatchBinding.OPTIONAL_PARAM, <span class="hljs-string">'(?:$1)?'</span>)

@@ -26,6 +26,7 @@
                 location = (location + pattern);
             }
             this.location = location.replace(/\((.*?)\)/g, '$1').replace(/^\/|$/g, '');
+            console.log(this.location, this.pattern);
 
             let route = this.pattern.replace(MatchBinding.ESCAPE_PARAM, '\\$&')
                 .replace(MatchBinding.OPTIONAL_PARAM, '(?:$1)?')
@@ -156,7 +157,7 @@
     }
 }(this, function(MatchBinding) {
     'use strict';
-    
+
     class MatchBinder {
         constructor(location, params, command, root) {
             this.bindings = [];
@@ -237,7 +238,7 @@
         if (!array)
             return false;
         // compare lengths - can save a lot of time
-        if (this.length != array.length)
+        if (this.length !== array.length)
             return false;
 
         for (let i = 0, l = this.length; i < l; i++) {
@@ -247,7 +248,7 @@
                 if (!this[i].equals(array[i]))
                     return false;
             }
-            else if (this[i] != array[i]) {
+            else if (this[i] !== array[i]) {
                 // Warning - two different object instances will never be equal: {x:20} != {x:20}
                 return false;
             }
@@ -289,25 +290,23 @@
     }
 
     class Router {
-        constructor() {
-            this.root = this.getBinder();
+        constructor(location) {
+            this.root = this.getBinder(location);
             this.bindings = [];
         };
 
-        getBinder() {
-            return new MatchBinder();
+        getBinder(location) {
+            return new MatchBinder(location);
         };
 
-        match(mapHandler) {
-            mapHandler(this.root.match.bind(this.root));
-        };
+    
 
         trigger(location) {
             if (this.started) {
                 let parts = location.split('?', 2);
                 let query = {};
                 if (parts[1]) {
-                    iterateQueryString(parts[1], function(name, value) {
+                    iterateQueryString(parts[1], (name, value)=> {
                         value = parseParams(value);
                         if (!query[name]) {
                             query[name] = value;
@@ -325,15 +324,15 @@
                         root:  loc,
                         query: query
                     },
-                    notValid = [],
                     matched = false;
 
-                this.bindings.forEach(function(binder) {
+                this.bindings = this.bindings.filter((binder)=> {
                     let fragment,
                         pattern = binder.pattern.replace(/\((.*?)\)/g, '$1').replace(/^\//, '').split('/'),
                         binderLocation = binder.location.split('/'),
                         prevLoc = binder.prevLoc.replace(/^\//, '').split('/'),
-                        checkSegment = function(link) {
+                        valid = true,
+                        checkSegment = (link)=> {
                             let currSegment = link.splice(binderLocation.length - pattern.length, pattern.length),
                                 prevSegment = prevLoc.splice(0, pattern.length);
                             return (!currSegment.equals(prevSegment));
@@ -341,18 +340,16 @@
                     fragment = checkSegment(matched || loc.split('/'));
                     if (fragment) {
                         matched = loc.split('/').splice(0, binderLocation.length - pattern.length);
-                        let handler = binder.getLeaveHandler(),
-                            args = [];
+                        let handler = binder.getLeaveHandler();
                         binder.setOnBind();
 
-                        this.applyHandler(handler, args, params, location);
-                        notValid.push(binder);
+                        this.applyHandler(handler, [], params, location);
+                        valid = false;
                     }
-                }.bind(this));
+                    return valid;
+                });
 
-                notValid.forEach(function(binder) {
-                    this.bindings.splice(this.bindings.indexOf(binder), 1);
-                }.bind(this));
+        
 
                 this.find(this.root, loc, params);
             }
@@ -360,7 +357,7 @@
 
         find(binder, location, params) {
             let bindings = binder.filter(location);
-            bindings.forEach(this.onBinding.bind(this, location, params));
+            bindings.forEach(binding=>this.onBinding(location, params, binding));
         };
 
         execute(binder) {
@@ -372,7 +369,7 @@
         };
 
         onBinding(location, params, binding) {
-            binding.setOnBind(this.onBinding.bind(this, location, params, binding))
+            binding.setOnBind(this.onBinding.bind(this, location, params, binding));
             this.runHandler(location, params, binding);
             let fragment = binding.getFragment(location);
             let subBinder = binding.getSubBinder();
@@ -422,17 +419,21 @@
 
         applyHandler(handlers, args, params, location) {
             if (handlers && handlers.length > 0) {
-                handlers.forEach(function(handler) {
+                handlers.forEach((handler)=> {
                     handler.apply(this, args.concat({
-                        getQuery:    function() {
+                        getQuery: function() {
                             return params.query;
                         },
-                        getLocation: function(fragment, isQuery) {
+                        getLocation(fragment, isQuery) {
                             return getLocation.call(this, fragment, isQuery, params, location)
-                        }.bind(this)
+                        }
                     }));
-                }.bind(this));
+                });
             }
+        };
+
+        match(mapHandler) {
+            mapHandler(this.root.match.bind(this.root));
         };
 
         start() {
