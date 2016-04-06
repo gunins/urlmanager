@@ -2,23 +2,24 @@
 
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
-        define(factory);
+        define([
+            './utils'
+        ], factory);
     } else if (typeof exports === 'object') {
         // Node. Does not work with strict CommonJS, but
         // only CommonJS-like environments that support module.exports,
         // like Node.
-        module.exports = factory();
-    } else {
-        // Browser globals (root is window)
-        root.UrlManager = root.UrlManager || {};
-        root.UrlManager.MatchBinding = factory();
+        module.exports = factory(require('./utils'));
     }
-}(this, function() {
+}(this, function(utils) {
     'use strict';
-    
-    class MatchBinding {
-        constructor(pattern, location) {
 
+
+    class MatchBinding {
+        constructor(pattern, location, binder) {
+            if (binder) {
+                this._binder = binder;
+            }
             if (location === '') {
                 this.pattern = location = pattern.replace(/^\(\/\)/g, '').replace(/^\/|$/g, '');
             } else {
@@ -26,7 +27,6 @@
                 location = (location + pattern);
             }
             this.location = location.replace(/\((.*?)\)/g, '$1').replace(/^\/|$/g, '');
-            console.log(this.location, this.pattern);
 
             let route = this.pattern.replace(MatchBinding.ESCAPE_PARAM, '\\$&')
                 .replace(MatchBinding.OPTIONAL_PARAM, '(?:$1)?')
@@ -35,6 +35,7 @@
                 }).replace(MatchBinding.SPLAT_PARAM, '(.*?)');
 
             this.patternRegExp = new RegExp('^' + route);
+
             this.routeHandler = [];
             this.leaveHandler = [];
             this.queryHandler = [];
@@ -61,6 +62,12 @@
 
         getRoutes() {
             return this.routes;
+        };
+
+        match(match) {
+            var subBinder = this.getSubBinder();
+            match(subBinder.match.bind(subBinder))
+            return this;
         };
 
         to(routeHandler) {
@@ -102,14 +109,22 @@
         };
 
         extractParams(fragment) {
-            let params = this.patternRegExp.exec(fragment).slice(1);
-            return params.map(function(param) {
-                return param ? decodeURIComponent(param) : null;
-            });
+            let params = this.patternRegExp.exec(fragment)
+            if (params && params.length > 0) {
+                return params.slice(1).map(function(param) {
+                    return param ? decodeURIComponent(param) : null;
+                });
+            } else {
+                return [];
+            }
         };
 
-        setSubBinder(subBinder) {
+        setSubBinder(MatchBinder, pattern, mapHandler) {
+            let subBinder = new MatchBinder(pattern);
             this.subBinder = subBinder;
+            if (mapHandler) {
+                mapHandler(subBinder.match.bind(subBinder));
+            }
             return subBinder;
         };
 
@@ -128,7 +143,54 @@
         getQueryHandler() {
             return this.queryHandler;
         };
-    };
+
+        getHandlers(name) {
+            let map = {
+                to: 'getHandler', leave: 'getLeaveHandler', query: 'getQueryHandler'
+            }
+            return this[map[name]]();
+        };
+
+        checkSegment(matched, params) {
+            let pattern = this.pattern.replace(/\((.*?)\)/g, '$1').replace(/^\//, '').split('/'),
+                prevLoc = this.prevLoc.replace(/^\//, '').split('/'),
+                currSegment = matched.slice(0, pattern.length),
+                prevSegment = prevLoc.slice(0, pattern.length),
+                equals = (utils.equals(currSegment, prevSegment));
+
+            if (!equals) {
+                this.clearActive(params);
+            } else if (matched.length > 1) {
+                this.getSubBinder().checkStatus(matched.slice(pattern.length), params);
+            } else {
+                this.getSubBinder().clearActive(params);
+            }
+
+            return equals;
+
+
+        }
+
+        clearActive(params, location) {
+            this.trigger('leave', params, location);
+            this.getSubBinder().clearActive();
+        }
+
+        trigger(name, params, location) {
+            if (name === 'to') {
+                this.prevLoc = location;
+            }
+            let args = this.extractParams(location),
+                handlers = this.getHandlers(name);
+
+            if (handlers && handlers.length > 0) {
+                handlers.forEach((handler)=> {
+                    handler.apply(this, args.concat(utils.getLocation(params)));
+                });
+            }
+        };
+    }
+    ;
     Object.assign(MatchBinding, {
         OPTIONAL_PARAM: /\((.*?)\)/g,
         NAMED_PARAM:    /(\(\?)?:\w+/g,

@@ -33,6 +33,11 @@
                 Router.js
               </a>
             
+              
+              <a class="source" href="utils.html">
+                utils.js
+              </a>
+            
           </div>
         </li>
       </ul>
@@ -116,16 +121,17 @@ like Node.</p>
 <span class="hljs-pi">    'use strict'</span>;
 
     <span class="hljs-keyword">class</span> MatchBinder {
-        constructor(location, params, command, root) {
+        constructor(location, params, command) {
             <span class="hljs-keyword">this</span>.bindings = [];
-            <span class="hljs-keyword">this</span>.location = root || location || <span class="hljs-string">''</span>;
+            <span class="hljs-keyword">this</span>._activeBindings = [];
+            <span class="hljs-keyword">this</span>.location = location || <span class="hljs-string">''</span>;
             <span class="hljs-keyword">this</span>.command = command;
             <span class="hljs-keyword">this</span>.params = params;
+            <span class="hljs-keyword">this</span>._active = <span class="hljs-literal">false</span>;
 
         }
 
         match(pattern, mapHandler) {
-
             <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> pattern === <span class="hljs-string">'function'</span>) {
                 mapHandler = pattern;
                 pattern = <span class="hljs-literal">false</span>;
@@ -133,31 +139,67 @@ like Node.</p>
             <span class="hljs-keyword">if</span> (pattern === <span class="hljs-string">''</span>) {
                 pattern = <span class="hljs-literal">false</span>;
             }
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.getMatchBinding(pattern, mapHandler);
+        };
 
-            <span class="hljs-keyword">let</span> binding = <span class="hljs-keyword">this</span>.getMatchBinding(pattern, <span class="hljs-keyword">this</span>.location);
+        getMatchBinding(pattern, mapHandler) {
+            <span class="hljs-keyword">let</span> binding = <span class="hljs-keyword">new</span> MatchBinding(pattern, <span class="hljs-keyword">this</span>.location, <span class="hljs-keyword">this</span>);
+            binding.setSubBinder(MatchBinder, <span class="hljs-keyword">this</span>.location + (pattern || <span class="hljs-string">''</span>), mapHandler);
             <span class="hljs-keyword">this</span>.bindings.push(binding);
-
-            <span class="hljs-keyword">let</span> subBinder = <span class="hljs-keyword">this</span>.getSubBinder(<span class="hljs-keyword">this</span>.location + (pattern || <span class="hljs-string">''</span>));
-            binding.setSubBinder(subBinder);
-
-            <span class="hljs-keyword">if</span> (mapHandler) {
-                mapHandler(subBinder.match.bind(subBinder));
-            }
             <span class="hljs-keyword">return</span> binding;
-        };
 
-        getSubBinder(pattern) {
-            <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> MatchBinder(pattern);
-        };
-
-        getMatchBinding(pattern, root) {
-            <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> MatchBinding(pattern, root);
         };
 
         filter(location) {
-            <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.bindings.filter(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(binding)</span> </span>{
+            <span class="hljs-keyword">let</span> bindings = <span class="hljs-keyword">this</span>.bindings.filter(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(binding)</span> </span>{
                 <span class="hljs-keyword">return</span> binding.test(location);
             });
+            <span class="hljs-keyword">return</span> bindings;
+        };
+
+        clearActive(params, location) {
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>._activeBindings.length &gt; <span class="hljs-number">0</span>) {
+                <span class="hljs-keyword">this</span>._activeBindings.forEach((binding)=&gt; binding.clearActive(params, location));
+                <span class="hljs-keyword">this</span>._activeBindings = [];
+            }
+        };
+
+        checkStatus(matched, params) {
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>._activeBindings.length &gt; <span class="hljs-number">0</span>) {
+                <span class="hljs-keyword">this</span>._activeBindings = <span class="hljs-keyword">this</span>._activeBindings.filter((binding)=&gt; {
+                    <span class="hljs-keyword">return</span> binding.checkSegment(matched, params);
+                });
+            }
+        };
+
+        trigger(params, location) {
+            <span class="hljs-keyword">let</span> matched = location.replace(<span class="hljs-regexp">/^\/|$/g</span>, <span class="hljs-string">''</span>).split(<span class="hljs-string">'/'</span>);
+            <span class="hljs-keyword">this</span>.checkStatus(matched, params);
+            <span class="hljs-keyword">this</span>.onBinding(location, params);
+        };
+
+        onBinding(location, params) {
+            <span class="hljs-keyword">let</span> bindings = <span class="hljs-keyword">this</span>.filter(location);
+            <span class="hljs-keyword">if</span> (bindings.length &gt; <span class="hljs-number">0</span>) {
+                bindings.forEach(binding=&gt; {
+                    <span class="hljs-keyword">this</span>.runHandler(location, params, binding);
+                    <span class="hljs-keyword">let</span> fragment = binding.getFragment(location);
+                    <span class="hljs-keyword">if</span> (fragment.trim() !== <span class="hljs-string">''</span>) {
+                        <span class="hljs-keyword">let</span> subBinder = binding.getSubBinder();
+                        <span class="hljs-keyword">if</span> (subBinder &amp;&amp; subBinder.bindings &amp;&amp; subBinder.bindings.length &gt; <span class="hljs-number">0</span>) {
+                            subBinder.trigger(params, fragment);
+                        }
+                    }
+                });
+            }
+        };
+
+        runHandler(location, params, binding) {
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>._activeBindings.indexOf(binding) === -<span class="hljs-number">1</span>) {
+                binding.trigger(<span class="hljs-string">'to'</span>, params, location);
+                <span class="hljs-keyword">this</span>._activeBindings.push(binding);
+            }
+            binding.trigger(<span class="hljs-string">'query'</span>, params, location);
         };
 
         run() {

@@ -19,16 +19,17 @@
     'use strict';
 
     class MatchBinder {
-        constructor(location, params, command, root) {
+        constructor(location, params, command) {
             this.bindings = [];
-            this.location = root || location || '';
+            this._activeBindings = [];
+            this.location = location || '';
             this.command = command;
             this.params = params;
+            this._active = false;
 
         }
 
         match(pattern, mapHandler) {
-
             if (typeof pattern === 'function') {
                 mapHandler = pattern;
                 pattern = false;
@@ -36,31 +37,67 @@
             if (pattern === '') {
                 pattern = false;
             }
+            return this.getMatchBinding(pattern, mapHandler);
+        };
 
-            let binding = this.getMatchBinding(pattern, this.location);
+        getMatchBinding(pattern, mapHandler) {
+            let binding = new MatchBinding(pattern, this.location, this);
+            binding.setSubBinder(MatchBinder, this.location + (pattern || ''), mapHandler);
             this.bindings.push(binding);
-
-            let subBinder = this.getSubBinder(this.location + (pattern || ''));
-            binding.setSubBinder(subBinder);
-
-            if (mapHandler) {
-                mapHandler(subBinder.match.bind(subBinder));
-            }
             return binding;
-        };
 
-        getSubBinder(pattern) {
-            return new MatchBinder(pattern);
-        };
-
-        getMatchBinding(pattern, root) {
-            return new MatchBinding(pattern, root);
         };
 
         filter(location) {
-            return this.bindings.filter(function(binding) {
+            let bindings = this.bindings.filter(function(binding) {
                 return binding.test(location);
             });
+            return bindings;
+        };
+
+        clearActive(params, location) {
+            if (this._activeBindings.length > 0) {
+                this._activeBindings.forEach((binding)=> binding.clearActive(params, location));
+                this._activeBindings = [];
+            }
+        };
+
+        checkStatus(matched, params) {
+            if (this._activeBindings.length > 0) {
+                this._activeBindings = this._activeBindings.filter((binding)=> {
+                    return binding.checkSegment(matched, params);
+                });
+            }
+        };
+
+        trigger(params, location) {
+            let matched = location.replace(/^\/|$/g, '').split('/');
+            this.checkStatus(matched, params);
+            this.onBinding(location, params);
+        };
+
+        onBinding(location, params) {
+            let bindings = this.filter(location);
+            if (bindings.length > 0) {
+                bindings.forEach(binding=> {
+                    this.runHandler(location, params, binding);
+                    let fragment = binding.getFragment(location);
+                    if (fragment.trim() !== '') {
+                        let subBinder = binding.getSubBinder();
+                        if (subBinder && subBinder.bindings && subBinder.bindings.length > 0) {
+                            subBinder.trigger(params, fragment);
+                        }
+                    }
+                });
+            }
+        };
+
+        runHandler(location, params, binding) {
+            if (this._activeBindings.indexOf(binding) === -1) {
+                binding.trigger('to', params, location);
+                this._activeBindings.push(binding);
+            }
+            binding.trigger('query', params, location);
         };
 
         run() {

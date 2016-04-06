@@ -1,6 +1,6 @@
 // PhantomJS doesn't support bind yet
 if (Function.prototype.bind === undefined) {
-    (function () {
+    (function() {
         var Ap = Array.prototype;
         var slice = Ap.slice;
         var Fp = Function.prototype;
@@ -8,7 +8,7 @@ if (Function.prototype.bind === undefined) {
         if (!Fp.bind) {
             // PhantomJS doesn't support Function.prototype.bind natively, so
             // polyfill it whenever this module is required.
-            Fp.bind = function (context) {
+            Fp.bind = function(context) {
                 var func = this;
                 var args = slice.call(arguments, 1);
 
@@ -41,7 +41,7 @@ function testGlobal(method) {
 function testEs6(done, methods) {
     var global = this;
     if (methods.filter(testGlobal.bind(global)).length > 0) {
-        require(['babel/polyfill'], function () {
+        require(['babel/polyfill'], function() {
             done();
         });
     } else {
@@ -49,13 +49,16 @@ function testEs6(done, methods) {
     }
 };
 
-var check = function () {
+var check = function() {
     'use strict';
 
     if (typeof Symbol == 'undefined') return false;
     try {
         eval('class Foo {}');
         eval('var bar = (x) => x+1');
+        eval('function Bar(a="a"){};');
+        eval('function Foo(...a){return [...a]}');
+        eval('var [a,b,c]=[1,2,3]');
     } catch (e) {
         return false;
     }
@@ -64,14 +67,27 @@ var check = function () {
 }();
 
 var target = check ? 'es6' : 'es5';
+console.log('This browser version supporting: ' + target);
 
-require.config({
-    baseUrl: '../dist/'+target+'/prod',
-    paths: {
-        test: '../../../test',
-        chai: "../../../node_modules/chai/chai"
-    }
-});
+if (window.testDev!==undefined) {
+
+    require.config({
+        baseUrl: '../src', // '../dist/'+target+'/prod',
+        paths:   {
+            test: '../test',
+            chai: "../node_modules/chai/chai"
+        }
+    });
+} else {
+    require.config({
+        baseUrl: '../dist/' + target + '/prod',
+        paths:   {
+            test: '../../../test',
+            chai: "../../../node_modules/chai/chai"
+        }
+    });
+}
+
 
 mocha.setup({
     ui: 'bdd'
@@ -81,7 +97,7 @@ mocha.ui('bdd');
 testEs6(function run() {
         require([
             testPathname
-        ], function () {
+        ], function() {
 
             if (window.mochaPhantomJS) {
                 window.mochaPhantomJS.run();
