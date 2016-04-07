@@ -28,12 +28,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 this._binder = binder;
             }
             if (location === '') {
-                this.pattern = location = pattern.replace(/^\(\/\)/g, '').replace(/^\/|$/g, '');
+                this.pattern = pattern.replace(/^\(\/\)/g, '').replace(/^\/|$/g, '');
             } else {
                 this.pattern = pattern;
-                location = location + pattern;
             }
-            this.location = location.replace(/\((.*?)\)/g, '$1').replace(/^\/|$/g, '');
 
             var route = this.pattern.replace(MatchBinding.ESCAPE_PARAM, '\\$&').replace(MatchBinding.OPTIONAL_PARAM, '(?:$1)?').replace(MatchBinding.NAMED_PARAM, function (match, optional) {
                 return optional ? match : '([^\/]+)';
@@ -45,6 +43,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             this.leaveHandler = [];
             this.queryHandler = [];
             this.routes = [];
+            this._active = false;
         }
 
         _createClass(MatchBinding, [{
@@ -83,19 +82,20 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }, {
             key: 'to',
             value: function to(routeHandler) {
-                this.routeHandler.push(routeHandler);
+                this.routeHandler.push({ handler: routeHandler, done: false });
                 return this;
             }
         }, {
             key: 'leave',
             value: function leave(leaveHandler) {
-                this.leaveHandler.push(leaveHandler);
+                var args = utils.getArgs(leaveHandler);
+                this.leaveHandler.push({ handler: leaveHandler, done: args.length > 0 && args[0] === 'done' });
                 return this;
             }
         }, {
             key: 'query',
             value: function query(queryHandler) {
-                this.queryHandler.push(queryHandler);
+                this.queryHandler.push({ handler: queryHandler, done: false });
                 return this;
             }
         }, {
@@ -142,7 +142,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             value: function setSubBinder(MatchBinder, pattern, mapHandler) {
                 var subBinder = new MatchBinder(pattern);
                 this.subBinder = subBinder;
-                if (mapHandler) {
+                if (typeof mapHandler === 'function') {
                     mapHandler(subBinder.match.bind(subBinder));
                 }
                 return subBinder;
@@ -178,42 +178,109 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }, {
             key: 'checkSegment',
             value: function checkSegment(matched, params) {
-                var pattern = this.pattern.replace(/\((.*?)\)/g, '$1').replace(/^\//, '').split('/'),
-                    prevLoc = this.prevLoc.replace(/^\//, '').split('/'),
-                    currSegment = matched.slice(0, pattern.length),
-                    prevSegment = prevLoc.slice(0, pattern.length),
-                    equals = utils.equals(currSegment, prevSegment);
+                var status = [];
+                if (this._active) {
+                    var pattern = this.pattern.replace(/\((.*?)\)/g, '$1').replace(/^\//, '').split('/'),
+                        prevLoc = this.prevLoc.replace(/^\//, '').split('/'),
+                        currSegment = matched.slice(0, pattern.length),
+                        prevSegment = prevLoc.slice(0, pattern.length),
+                        equals = utils.equals(currSegment, prevSegment);
 
-                if (!equals) {
-                    this.clearActive(params);
-                } else if (matched.length > 1) {
-                    this.getSubBinder().checkStatus(matched.slice(pattern.length), params);
-                } else {
-                    this.getSubBinder().clearActive(params);
+                    if (!equals) {
+                        status = this.clearActive(params);
+                    } else if (matched.length > 1) {
+                        status = this.getSubBinder().checkStatus(matched.slice(pattern.length), params);
+                    } else if (equals) {
+                        status = this.getSubBinder().clearActive(params);
+                    }
                 }
-
-                return equals;
+                return status;
             }
         }, {
             key: 'clearActive',
-            value: function clearActive(params, location) {
-                this.trigger('leave', params, location);
-                this.getSubBinder().clearActive();
+            value: function clearActive(params) {
+                var active = [];
+                if (this._active) {
+                    active.push(this.triggerLeave(params));
+                    this._active = false;
+                }
+
+                return active.concat(this.getSubBinder().clearActive());
+            }
+        }, {
+            key: 'triggerTo',
+            value: function triggerTo(location, params) {
+                if (this.test(location)) {
+                    if (!this._active) {
+                        this.trigger('to', params, location);
+                        this._active = true;
+                    }
+                    this.trigger('query', params, location);
+                    var fragment = this.getFragment(location);
+                    if (fragment.trim() !== '') {
+                        var subBinder = this.getSubBinder();
+                        if (subBinder && subBinder.bindings && subBinder.bindings.length > 0) {
+                            subBinder.trigger(fragment, params);
+                        }
+                    }
+                }
+            }
+        }, {
+            key: 'triggerLeave',
+            value: function triggerLeave(params) {
+                var _this = this;
+
+                return function (cb) {
+                    var handlers = _this.getLeaveHandler(),
+                        loc = utils.getLocation(params, _this.prevLoc),
+                        items = 0,
+                        stopped = false;
+                    handlers.forEach(function (item) {
+                        if (item.done) {
+                            items++;
+                        }
+                        var caller = function caller() {
+                            var done = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
+
+                            if (done) {
+                                items--;
+                                if (items === 0 && !stopped) {
+                                    cb(true);
+                                }
+                            } else if (!done && !stopped) {
+                                stopped = true;
+                            }
+                            if (stopped) {
+                                cb(false);
+                            }
+                        };
+                        item.handler(caller, loc);
+                    });
+                    if (items === 0) {
+                        cb(true);
+                    }
+                };
             }
         }, {
             key: 'trigger',
             value: function trigger(name, params, location) {
-                var _this = this;
-
                 if (name === 'to') {
                     this.prevLoc = location;
                 }
-                var args = this.extractParams(location),
+                var args = this.extractParams(location).concat(utils.getLocation(params, location)),
                     handlers = this.getHandlers(name);
+                this.applyHandlers(handlers, args);
+            }
+        }, {
+            key: 'applyHandlers',
+            value: function applyHandlers(handlers) {
+                var _this2 = this;
+
+                var args = arguments.length <= 1 || arguments[1] === undefined ? [] : arguments[1];
 
                 if (handlers && handlers.length > 0) {
-                    handlers.forEach(function (handler) {
-                        handler.apply(_this, args.concat(utils.getLocation(params)));
+                    handlers.forEach(function (item) {
+                        item.handler.apply(_this2, args);
                     });
                 }
             }
@@ -222,7 +289,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         return MatchBinding;
     }();
 
-    ;
     Object.assign(MatchBinding, {
         OPTIONAL_PARAM: /\((.*?)\)/g,
         NAMED_PARAM: /(\(\?)?:\w+/g,

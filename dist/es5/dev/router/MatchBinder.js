@@ -51,72 +51,81 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }, {
             key: 'getMatchBinding',
             value: function getMatchBinding(pattern, mapHandler) {
-                var binding = new MatchBinding(pattern, this.location, this);
-                binding.setSubBinder(MatchBinder, this.location + (pattern || ''), mapHandler);
-                this.bindings.push(binding);
-                return binding;
-            }
-        }, {
-            key: 'filter',
-            value: function filter(location) {
-                var bindings = this.bindings.filter(function (binding) {
-                    return binding.test(location);
-                });
-                return bindings;
+                if (pattern) {
+                    var binding = new MatchBinding(pattern, this.location, this);
+                    binding.setSubBinder(MatchBinder, this.location + (pattern || ''), mapHandler);
+                    this.bindings.push(binding);
+                    return binding;
+                } else {
+                    if (typeof mapHandler === 'function') {
+                        mapHandler(this.match.bind(this));
+                    }
+                    return {
+                        match: this.match.bind(this)
+                    };
+                }
             }
         }, {
             key: 'clearActive',
             value: function clearActive(params, location) {
-                if (this._activeBindings.length > 0) {
-                    this._activeBindings.forEach(function (binding) {
-                        return binding.clearActive(params, location);
+                var active = [];
+                if (this.bindings.length > 0) {
+                    this.bindings.forEach(function (binding) {
+                        active = active.concat(binding.clearActive(params, location));
                     });
-                    this._activeBindings = [];
                 }
+                return active;
             }
         }, {
             key: 'checkStatus',
             value: function checkStatus(matched, params) {
-                if (this._activeBindings.length > 0) {
-                    this._activeBindings = this._activeBindings.filter(function (binding) {
-                        return binding.checkSegment(matched, params);
+                var status = [];
+                if (this.bindings.length > 0) {
+                    this.bindings.forEach(function (binding) {
+                        status = status.concat(binding.checkSegment(matched, params));
                     });
                 }
+                return status;
             }
         }, {
             key: 'trigger',
-            value: function trigger(params, location) {
-                var matched = location.replace(/^\/|$/g, '').split('/');
-                this.checkStatus(matched, params);
-                this.onBinding(location, params);
-            }
-        }, {
-            key: 'onBinding',
-            value: function onBinding(location, params) {
+            value: function trigger(location, params, move) {
                 var _this = this;
 
-                var bindings = this.filter(location);
-                if (bindings.length > 0) {
-                    bindings.forEach(function (binding) {
-                        _this.runHandler(location, params, binding);
-                        var fragment = binding.getFragment(location);
-                        if (fragment.trim() !== '') {
-                            var subBinder = binding.getSubBinder();
-                            if (subBinder && subBinder.bindings && subBinder.bindings.length > 0) {
-                                subBinder.trigger(params, fragment);
-                            }
-                        }
-                    });
+                var matched = location.replace(/^\/|$/g, '').split('/'),
+                    status = this.checkStatus(matched, params);
+                if (status.length > 0) {
+                    (function () {
+                        var index = 0;
+                        status.forEach(function (fn) {
+                            fn(function (applied) {
+                                if (applied) {
+                                    index++;
+                                } else if (move) {
+                                    move(false);
+                                }
+                                if (status.length === index) {
+                                    _this.triggerRoutes(location, params);
+                                    if (move) {
+                                        move(true);
+                                    }
+                                }
+                            });
+                        });
+                    })();
+                } else {
+                    this.triggerRoutes(location, params);
+                    if (move) {
+                        move(true);
+                    }
                 }
             }
         }, {
-            key: 'runHandler',
-            value: function runHandler(location, params, binding) {
-                if (this._activeBindings.indexOf(binding) === -1) {
-                    binding.trigger('to', params, location);
-                    this._activeBindings.push(binding);
-                }
-                binding.trigger('query', params, location);
+            key: 'triggerRoutes',
+            value: function triggerRoutes(location, params) {
+                this.bindings.forEach(function (binding) {
+                    return binding.triggerTo(location, params);
+                });
             }
         }, {
             key: 'run',

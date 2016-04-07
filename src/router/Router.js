@@ -22,7 +22,7 @@
                     this._location = location.replace(/^\/|\/$/g, '') + '/';
                 }
                 this.root = this.getBinder();
-                this.bindings = [];
+                this._listeners = new Set();
             };
 
             getBinder() {
@@ -47,6 +47,7 @@
 
             trigger(location) {
                 if (this.started) {
+                    this.started = false;
                     let parts = location.split('?', 2),
                         loc = this.getLocation(parts[0]);
                     if (loc) {
@@ -55,84 +56,30 @@
                                 root:  loc,
                                 query: query
                             };
-                        this.root.trigger(params, loc);
+                        this.root.trigger(loc, params, (move)=> {
+                            this.setLocation(move ? location : this.prevLocation);
+                            this.prevLocation = location;
+                            this.started = true;
+                        });
                     }
-
-                    /*  this.bindings = this.bindings.filter((binding)=> {
-
-                     let fragment = binding.checkSegment(matched.slice(0), loc);
-
-                     if (fragment) {
-                     matched = fragment;
-                     binding.trigger('leave', params, location);
-                     binding.setOnBind();
-                     }
-                     return !fragment;
-                     });
-
-
-                     let bindings = this.find(this.root, loc);
-                     if (bindings.length > 0) {
-                     bindings.forEach(binding=>this.onBinding(loc, params, binding));
-                     }*/
                 }
             };
 
-            /*  find(binder, location) {
-             let bindings = binder.filter(location);
-             return bindings;
-             };*/
-
-            /*     execute(binder) {
-             let binderlocation = binder.location.split('/'),
-             rootLocation = binder.params.root.split('/'),
-             location = '/' + rootLocation.splice(binderlocation.length, rootLocation.length -
-             binderlocation.length).join('/');
-             let bindings = this.find(binder, location);
-             if (bindings.length > 0) {
-             bindings.forEach(binding=>this.onBinding(location, binder.params, binding));
-             }
-
-             };*/
-
-            /*       onBinding(location, params, binding) {
-             binding.setOnBind(this.onBinding.bind(this, location, params, binding));
-             this.runHandler(location, params, binding);
-             let fragment = binding.getFragment(location);
-             let subBinder = binding.getSubBinder();
-             if (subBinder && subBinder.bindings && subBinder.bindings.length > 0) {
-             let bindings = this.find(subBinder, fragment);
-             if (bindings.length > 0) {
-             bindings.forEach(binding=>this.onBinding(fragment, params, binding));
-             }
-
-             }
-             let subRoutes = binding.getRoutes();
-             if (subRoutes && subRoutes.length > 0) {
-             while (subRoutes.length > 0) {
-             let Route = subRoutes[0],
-             binder = new MatchBinder(binding.location || binding.getFragment(location), params, this.execute.bind(this));
-             console.log(binder);
-             Route(binder);
-             subBinder.bindings = subBinder.bindings.concat(binder.bindings);
-             subRoutes.shift();
-             }
-             }
-
-             };*/
+            setListener(listener) {
+                let listeners = this._listeners;
+                listeners.add(listener);
+                return {
+                    remove(){
+                        listeners.delete(listener);
+                    }
+                }
+            };
 
 
-            /* runHandler(location, params, binding) {
+            setLocation(location) {
+                this._listeners.forEach(listener=>listener(location));
 
-             if (this.bindings.indexOf(binding) === -1) {
-             binding.trigger('to', params, location);
-
-             this.bindings.push(binding);
-             }
-             binding.trigger('query', params, location);
-
-
-             };*/
+            };
 
             match(mapHandler) {
                 mapHandler(this.root.match.bind(this.root));

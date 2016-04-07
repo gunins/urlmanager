@@ -21,12 +21,10 @@
                 this._binder = binder;
             }
             if (location === '') {
-                this.pattern = location = pattern.replace(/^\(\/\)/g, '').replace(/^\/|$/g, '');
+                this.pattern = pattern.replace(/^\(\/\)/g, '').replace(/^\/|$/g, '');
             } else {
                 this.pattern = pattern;
-                location = (location + pattern);
             }
-            this.location = location.replace(/\((.*?)\)/g, '$1').replace(/^\/|$/g, '');
 
             let route = this.pattern.replace(MatchBinding.ESCAPE_PARAM, '\\$&')
                 .replace(MatchBinding.OPTIONAL_PARAM, '(?:$1)?')
@@ -40,6 +38,7 @@
             this.leaveHandler = [];
             this.queryHandler = [];
             this.routes = [];
+            this._active = false;
         }
 
         onBind() {
@@ -71,17 +70,18 @@
         };
 
         to(routeHandler) {
-            this.routeHandler.push(routeHandler);
+            this.routeHandler.push({handler: routeHandler, done: false});
             return this;
         };
 
         leave(leaveHandler) {
-            this.leaveHandler.push(leaveHandler);
+            var args = utils.getArgs(leaveHandler);
+            this.leaveHandler.push({handler: leaveHandler, done: (args.length > 0 && args[0] === 'done')});
             return this;
         };
 
         query(queryHandler) {
-            this.queryHandler.push(queryHandler);
+            this.queryHandler.push({handler: queryHandler, done: false});
             return this;
         };
 
@@ -122,7 +122,7 @@
         setSubBinder(MatchBinder, pattern, mapHandler) {
             let subBinder = new MatchBinder(pattern);
             this.subBinder = subBinder;
-            if (mapHandler) {
+            if (typeof mapHandler === 'function') {
                 mapHandler(subBinder.match.bind(subBinder));
             }
             return subBinder;
@@ -152,45 +152,104 @@
         };
 
         checkSegment(matched, params) {
-            let pattern = this.pattern.replace(/\((.*?)\)/g, '$1').replace(/^\//, '').split('/'),
-                prevLoc = this.prevLoc.replace(/^\//, '').split('/'),
-                currSegment = matched.slice(0, pattern.length),
-                prevSegment = prevLoc.slice(0, pattern.length),
-                equals = (utils.equals(currSegment, prevSegment));
+            let status = [];
+            if (this._active) {
+                let pattern = this.pattern.replace(/\((.*?)\)/g, '$1').replace(/^\//, '').split('/'),
+                    prevLoc = this.prevLoc.replace(/^\//, '').split('/'),
+                    currSegment = matched.slice(0, pattern.length),
+                    prevSegment = prevLoc.slice(0, pattern.length),
+                    equals = (utils.equals(currSegment, prevSegment));
 
-            if (!equals) {
-                this.clearActive(params);
-            } else if (matched.length > 1) {
-                this.getSubBinder().checkStatus(matched.slice(pattern.length), params);
-            } else {
-                this.getSubBinder().clearActive(params);
+                if (!equals) {
+                    status = this.clearActive(params);
+                } else if (matched.length > 1) {
+                    status = this.getSubBinder().checkStatus(matched.slice(pattern.length), params);
+                } else if (equals) {
+                    status = this.getSubBinder().clearActive(params);
+                }
             }
-
-            return equals;
-
-
+            return status;
         }
 
-        clearActive(params, location) {
-            this.trigger('leave', params, location);
-            this.getSubBinder().clearActive();
+        clearActive(params) {
+            let active = [];
+            if (this._active) {
+                active.push(this.triggerLeave(params));
+                this._active = false;
+            }
+
+            return active.concat(this.getSubBinder().clearActive());
+        }
+
+        triggerTo(location, params) {
+            if (this.test(location)) {
+                if (!this._active) {
+                    this.trigger('to', params, location);
+                    this._active = true;
+                }
+                this.trigger('query', params, location);
+                let fragment = this.getFragment(location);
+                if (fragment.trim() !== '') {
+                    let subBinder = this.getSubBinder();
+                    if (subBinder && subBinder.bindings && subBinder.bindings.length > 0) {
+                        subBinder.trigger(fragment, params);
+                    }
+                }
+            }
+        };
+
+        triggerLeave(params) {
+            return (cb)=> {
+                let handlers = this.getLeaveHandler(),
+                    loc = utils.getLocation(params, this.prevLoc),
+                    items = 0,
+                    stopped = false;
+                handlers.forEach((item)=> {
+                    if (item.done) {
+                        items++;
+                    }
+                    let caller = (done = true)=> {
+                        if (done) {
+                            items--;
+                            if (items === 0 && !stopped) {
+                                cb(true);
+                            }
+                        } else if (!done && !stopped) {
+                            stopped = true;
+                        }
+                        if (stopped) {
+                            cb(false);
+                        }
+                    }
+                    item.handler(caller, loc);
+
+                });
+                if (items === 0) {
+                    cb(true);
+                }
+
+
+            }
         }
 
         trigger(name, params, location) {
             if (name === 'to') {
                 this.prevLoc = location;
             }
-            let args = this.extractParams(location),
+            let args = this.extractParams(location).concat(utils.getLocation(params, location)),
                 handlers = this.getHandlers(name);
+            this.applyHandlers(handlers, args)
+        };
 
+        applyHandlers(handlers, args = []) {
             if (handlers && handlers.length > 0) {
-                handlers.forEach((handler)=> {
-                    handler.apply(this, args.concat(utils.getLocation(params)));
+                handlers.forEach((item)=> {
+                    item.handler.apply(this, args);
                 });
             }
-        };
+        }
     }
-    ;
+
     Object.assign(MatchBinding, {
         OPTIONAL_PARAM: /\((.*?)\)/g,
         NAMED_PARAM:    /(\(\?)?:\w+/g,

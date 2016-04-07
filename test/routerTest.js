@@ -54,49 +54,61 @@
     router.match(function(match) {
         //Nested Routes
         match('(/)levelB', function(match) {
-            // Dynamic parametres
-            match('/:a/:b/:c', function(match) {
-                // Nested route for example displaying table
-                match('/table', function(match) {
-                    // Dynamic route for table
-                    match('/:id').to(function(id, params) {
-                        route.tableId = id;
-                        route.tableLocation = params.getLocation();
-                        console.log('table id', id);
+            match(function() {
+                // Dynamic parametres
+                match('/:a/:b/:c', function(match) {
+                    // Nested route for example displaying table
+                    match('/table', function(match) {
+                        // Dynamic route for table
+                        match('/:id').to(function(id, params) {
+                            route.tableId = id;
+                            route.tableLocation = params.getLocation();
+                            console.log('table id', id);
+                        });
+                    }).to(function() {
+                        route.table = 'table';
+                        console.log('table');
                     });
-                }).to(function() {
-                    route.table = 'table';
-                    console.log('table');
-                });
-                // Nested route for example displaying list
-                match('/list', function(match) {
-                    // dynamic route for list
-                    match('/:id').to(function(id, params) {
-                        route.listId = id;
-                        route.listLocation = params.getLocation()
-                        console.log('list id', id);
-                    }).leave(function() {
-                        route.listLeave = 'leave';
-                        console.log('list id is leaved');
+                    // Nested route for example displaying list
+                    match('/list', function(match) {
+                        // dynamic route for list
+                        match('/:id').to(function(id, params) {
+                            route.listId = id;
+                            route.listLocation = params.getLocation()
+                            console.log('list id', id);
+                        }).leave(function() {
+                            route.listLeave = 'leave';
+                            console.log('list id is leaved');
+                        });
+                    }).to(function() {
+                        route.list = 'list';
+                        console.log('list');
+                    }).leave(function(done) {
+                        setTimeout(function() {
+                            route.listLeavea = 'leave200';
+                            done();
+                        }, 200)
+                    }).leave(function(done) {
+                        // console.log('testing done', done);
+                        setTimeout(function() {
+                            route.listLeaveb = 'leave300';
+                            done();
+                        }, 300)
                     });
-                }).to(function() {
-                    route.list = 'list';
-                    console.log('list');
-                });
 
-                // Triggering and return particullar url segments
-            }).to(function(a, b, c, params) {
-                route.levelOptC = {
-                    a: a,
-                    b: b,
-                    c: c
-                };
-                console.log('leveloptC', a, b, c, params.getQuery())
-            }).leave(function() {
-                route.levelOptCLeave = 'leaved';
-                console.log('leveloptC leaved');
+                    // Triggering and return particullar url segments
+                }).to(function(a, b, c, params) {
+                    route.levelOptC = {
+                        a: a,
+                        b: b,
+                        c: c
+                    };
+                    console.log('leveloptC', a, b, c, params.getQuery())
+                }).leave(function() {
+                    route.levelOptCLeave = 'leaved';
+                    console.log('leveloptC leaved');
+                });
             });
-
         }).to(function() {
             route.levelB = 'levelB';
             console.log('levelB Triggered')
@@ -112,18 +124,22 @@
 
         //Another Route
         match('/levelA', function(match) {
-            match('/levelC').to(function() {
-                route.levelC = 'levelC';
-                console.log('levelC dash triggered');
-                //    Triggering when Leave Route
-            }).leave(function() {
-                route.levelCLeaved = 'levelCLeaved';
-                console.log('levelC dash Leaved');
-                //    Triggering everytime params is changed
-            }).query(function(params) {
-                route.query = params.getQuery();
-                console.log('query', params.getQuery());
+            match().match(function(match) {
+
+                match('/levelC').to(function() {
+                    route.levelC = 'levelC';
+                    console.log('levelC dash triggered');
+                    //    Triggering when Leave Route
+                }).leave(function() {
+                    route.levelCLeaved = 'levelCLeaved';
+                    console.log('levelC dash Leaved');
+                    //    Triggering everytime params is changed
+                }).query(function(params) {
+                    route.query = params.getQuery();
+                    console.log('query', params.getQuery());
+                });
             });
+
         }).to(function() {
             route.levelA = 'levelA';
             console.log('levelA triggered')
@@ -141,6 +157,18 @@
 
         });
 
+        match('/levelR').to(function() {
+            route.levelTestR = 'levelR'
+
+        }).leave(function(done) {
+            setTimeout(function() {
+                route.leavedR = 'not Triggered';
+                done(false);
+            }, 300)
+        });
+        match('/levelS').to(function() {
+            route.levelNone = 'levelS'
+        })
         //Another setRoutes CF
         match('/levelC').setRoutes(function(routes) {
             routes.match('/levelF').to(function() {
@@ -276,8 +304,22 @@
 
                 it('levelA route triggered again should equal to LevelC Leaved', function() {
                     router.trigger('/levelA');
-                    console.log(route);
                     expect(route).to.deep.equal({levelCLeaved: 'levelCLeaved'});
+                });
+
+                it('levelR route triggered but Leave not accepted', function(done) {
+                    router.trigger('/levelR');
+                    expect(route).to.deep.equal({levelTestR: 'levelR'});
+                    var listener = router.setListener(function(location) {
+                        expect(location).to.equal('/levelR');
+                        listener.remove();
+                    });
+                    router.trigger('/levelS');
+                    setTimeout(function() {
+                        expect(route).to.deep.equal({levelTestR: 'levelR', leavedR: 'not Triggered'});
+                        done();
+                    }, 310);
+
                 });
             });
 
@@ -286,48 +328,62 @@
                     router.trigger('levelB/a/b/c/list/35');
                     var compare =
                     {
-                        levelBEx:  'levelBEx',
-                        levelB:    'levelB',
-                        levelOptC: {
+                        levelBEx:     'levelBEx',
+                        levelB:       'levelB',
+                        levelOptC:    {
                             a: 'a',
                             b: 'b',
                             c: 'c'
                         },
-                        list:      'list',
-                        listId:    '35',
-                        listLocation:'levelB/a/b/c/list'
+                        list:         'list',
+                        listId:       '35',
+                        listLocation: 'levelB/a/b/c/list'
                     };
+
                     expect(route).to.deep.equal(compare);
                 });
                 it('levelB/a/b/c/list/36 route triggered, only id is changed', function() {
                     router.trigger('levelB/a/b/c/list/36');
                     var compare =
                     {
-                        listId:    '36',
-                        listLocation:'levelB/a/b/c/list',
-                        listLeave: 'leave'
+                        listId:       '36',
+                        listLocation: 'levelB/a/b/c/list',
+                        listLeave:    'leave'
                     };
                     console.log(route);
 
                     expect(route).to.deep.equal(compare);
                 });
-                 it('levelB/a/b/c/table/36 route triggered, only id is changed', function() {
+                it('levelB/a/b/c/table/36 route triggered, only id is changed', function(done) {
                     router.trigger('levelB/a/b/c/table/36');
-                    var compare =
-                    {
-                        table:     'table',
-                        tableLocation:'levelB/a/b/c/table',
-                        tableId:   '36',
-                        listLeave: 'leave'
-                    };
-                    expect(route).to.deep.equal(compare);
+
+                    setTimeout(function() {
+                        var compare = {listLeavea: 'leave200', listLeave: 'leave'}
+                        console.log(route);
+                        expect(route).to.deep.equal(compare)
+                    }, 210);
+
+                    setTimeout(function() {
+                        var compare =
+                        {
+                            table:         'table',
+                            tableLocation: 'levelB/a/b/c/table',
+                            tableId:       '36',
+                            listLeave:     'leave',
+                            listLeavea:    'leave200',
+                            listLeaveb:    'leave300',
+                        };
+                        expect(route).to.deep.equal(compare);
+                        done();
+                    }, 310);
+
                 });
                 it('levelB/a/b/c/table/35 route triggered, only id is changed', function() {
                     router.trigger('levelB/a/b/c/table/35');
                     var compare =
                     {
-                        tableLocation:'levelB/a/b/c/table',
-                        tableId: '35'
+                        tableLocation: 'levelB/a/b/c/table',
+                        tableId:       '35'
                     };
 
                     expect(route).to.deep.equal(compare);
@@ -342,7 +398,7 @@
                             b: 'b',
                             c: 'd'
                         },
-                        tableLocation:'levelB/a/b/d/table',
+                        tableLocation:  'levelB/a/b/d/table',
                         table:          'table',
                         tableId:        '35'
                     };
