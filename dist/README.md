@@ -47,13 +47,20 @@ In Code use
 
 To use for Window hash changes add this in to your main file, after router is initialised.
 
-    function onHashChange() {
-        var match = window.location.href.match(/#(.*)$/);
-        router.trigger(match ? match[1] : '');
-    };
-    window.addEventListener('hashchange', onHashChange, false);
-    onHashChange();
-
+    (function(window){
+        var hash='';
+        function onHashChange() {
+            var match = window.location.href.match(/#(.*)$/);
+            router.trigger(match ? match[1] : '');
+            router.setListener(function(location) {
+                if(match[1]!==location){
+                    window.location.href = match[0] + '#' + location;
+                }
+            });
+        };
+        window.addEventListener('hashchange', onHashChange, false);
+        onHashChange();
+    })(window);
 ### To routes joined
 
 Function `to` will bind when route is triggered
@@ -71,6 +78,15 @@ In this case function will be triggered when location hash `#/levelA` will be tr
         });
 
 In this case function will be triggered when location hash `#/levelA` will be changed to any other.
+
+#### Asynchronus leaving
+
+        match('/levelA').leave(function (done) {
+            ... Your Function execution
+            done(true); // Boolean true or false
+        });
+
+In this case function will be triggered when location hash `#/levelA` will be changed to any other, and function `done()` executed. this is handy for forms, if you want to confirm, leaving.
 
 ### When Query will be changed
 

@@ -25,18 +25,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     'use strict';
 
     var MatchBinder = function () {
-        function MatchBinder(location, params, command) {
+        function MatchBinder(location, parent) {
             _classCallCheck(this, MatchBinder);
 
-            this.bindings = [];
-            this._activeBindings = [];
+            this._parent = parent;
+            this.bindings = new Set();
             this.location = location || '';
-            this.command = command;
-            this.params = params;
             this._active = false;
         }
 
         _createClass(MatchBinder, [{
+            key: 'reTrigger',
+            value: function reTrigger() {
+                this._parent.reTrigger();
+            }
+        }, {
             key: 'match',
             value: function match(pattern, mapHandler) {
                 if (typeof pattern === 'function') {
@@ -54,7 +57,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 if (pattern) {
                     var binding = new MatchBinding(pattern, this.location, this);
                     binding.setSubBinder(MatchBinder, this.location + (pattern || ''), mapHandler);
-                    this.bindings.push(binding);
+                    this.bindings.add(binding);
                     return binding;
                 } else {
                     if (typeof mapHandler === 'function') {
@@ -69,7 +72,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             key: 'clearActive',
             value: function clearActive(params, location) {
                 var active = [];
-                if (this.bindings.length > 0) {
+                if (this.bindings.size > 0) {
                     this.bindings.forEach(function (binding) {
                         active = active.concat(binding.clearActive(params, location));
                     });
@@ -79,59 +82,63 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }, {
             key: 'checkStatus',
             value: function checkStatus(matched, params) {
-                var status = [];
-                if (this.bindings.length > 0) {
+                var active = [];
+                if (this.bindings.size > 0) {
                     this.bindings.forEach(function (binding) {
-                        status = status.concat(binding.checkSegment(matched, params));
+                        active = active.concat(binding.checkSegment(matched, params));
                     });
                 }
-                return status;
+                return active;
             }
         }, {
             key: 'trigger',
             value: function trigger(location, params, move) {
                 var _this = this;
 
-                var matched = location.replace(/^\/|$/g, '').split('/'),
-                    status = this.checkStatus(matched, params);
-                if (status.length > 0) {
+                if (this.bindings.size > 0) {
                     (function () {
-                        var index = 0;
-                        status.forEach(function (fn) {
-                            fn(function (applied) {
-                                if (applied) {
-                                    index++;
-                                } else if (move) {
-                                    move(false);
-                                }
-                                if (status.length === index) {
-                                    _this.triggerRoutes(location, params);
-                                    if (move) {
-                                        move(true);
-                                    }
-                                }
-                            });
-                        });
+                        var matched = location.replace(/^\/|$/g, '').split('/'),
+                            active = _this.checkStatus(matched, params);
+                        if (active.length > 0) {
+                            (function () {
+                                var index = 0;
+                                active.forEach(function (fn) {
+                                    fn(function (applied) {
+                                        if (applied) {
+                                            index++;
+                                        } else if (move) {
+                                            move(false);
+                                        }
+                                        if (active.length === index) {
+                                            _this.triggerRoutes(location, params);
+                                            if (move) {
+                                                move(true);
+                                            }
+                                        }
+                                    });
+                                });
+                            })();
+                        } else {
+                            _this.triggerRoutes(location, params);
+                            if (move) {
+                                move(true);
+                            }
+                        }
                     })();
-                } else {
-                    this.triggerRoutes(location, params);
-                    if (move) {
-                        move(true);
-                    }
                 }
             }
         }, {
             key: 'triggerRoutes',
             value: function triggerRoutes(location, params) {
-                this.bindings.forEach(function (binding) {
-                    return binding.triggerTo(location, params);
-                });
+                if (this.bindings.size > 0) {
+                    this.bindings.forEach(function (binding) {
+                        return binding.triggerTo(location, params);
+                    });
+                }
             }
         }, {
             key: 'run',
-            value: function run() {
-                this.command(this);
-            }
+            value: function run() {}
         }]);
 
         return MatchBinder;

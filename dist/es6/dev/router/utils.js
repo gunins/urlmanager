@@ -60,6 +60,7 @@
     };
 
     function getLocation(params, pattern) {
+
         return {
             getQuery() {
                 return params.query;
@@ -67,6 +68,7 @@
             getLocation(fragment = '', isQuery) {
                 let current = params.root.substring(0, params.root.length - pattern.length),
                     newQuery;
+
                 if (isQuery === true) {
                     newQuery = serialize(params.query);
                 }

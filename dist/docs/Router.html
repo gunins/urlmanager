@@ -115,7 +115,7 @@ like Node.</p>
             };
 
             getBinder() {
-                <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> MatchBinder();
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> MatchBinder(<span class="hljs-string">''</span>, <span class="hljs-keyword">this</span>);
             };
 
             test(loc) {
@@ -134,18 +134,25 @@ like Node.</p>
                 <span class="hljs-keyword">return</span> location;
             };
 
+            reTrigger() {
+                <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.prevLocation) {
+                    <span class="hljs-keyword">this</span>.trigger(<span class="hljs-keyword">this</span>.prevLocation);
+                }
+            };
+
             trigger(location) {
-                <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.started) {
+                <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.started &amp;&amp; location) {
                     <span class="hljs-keyword">this</span>.started = <span class="hljs-literal">false</span>;
                     <span class="hljs-keyword">let</span> parts = location.split(<span class="hljs-string">'?'</span>, <span class="hljs-number">2</span>),
-                        loc = <span class="hljs-keyword">this</span>.getLocation(parts[<span class="hljs-number">0</span>]);
-                    <span class="hljs-keyword">if</span> (loc) {
+                        segments = <span class="hljs-keyword">this</span>.getLocation(parts[<span class="hljs-number">0</span>]);
+
+                    <span class="hljs-keyword">if</span> (segments || segments === <span class="hljs-string">''</span>) {
                         <span class="hljs-keyword">let</span> query = utils.setQuery(parts[<span class="hljs-number">1</span>]),
                             params = {
-                                root:  loc,
+                                root:  segments,
                                 query: query
                             };
-                        <span class="hljs-keyword">this</span>.root.trigger(loc, params, (move)=&gt; {
+                        <span class="hljs-keyword">this</span>.root.trigger(segments, params, (move)=&gt; {
                             <span class="hljs-keyword">this</span>.setLocation(move ? location : <span class="hljs-keyword">this</span>.prevLocation);
                             <span class="hljs-keyword">this</span>.prevLocation = location;
                             <span class="hljs-keyword">this</span>.started = <span class="hljs-literal">true</span>;

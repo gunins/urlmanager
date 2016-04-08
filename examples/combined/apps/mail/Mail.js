@@ -1,7 +1,7 @@
 define(["require", "exports", './Compose', './InboxRegion'], function (require, exports, Compose, InboxRegion) {
     function MailApp(builder) {
-        var compose = builder.getLocation('/compose');
-        var inbox = builder.getLocation('/inbox', false);
+        var compose = builder.getLocation('mail/compose');
+        var inbox = builder.getLocation('mail/inbox', false);
         var query = builder.getQuery();
 
         var container = document.getElementById('Container');
@@ -13,9 +13,11 @@ define(["require", "exports", './Compose', './InboxRegion'], function (require, 
     }
 
     function map(match) {
-        match('(/)').to(MailApp);
-        match('/compose').to(Compose);
-        match('/inbox', InboxRegion);
+        match.to(MailApp);
+        match.match(function(match) {
+          match('/compose').to(Compose)
+        });
+         match.match(InboxRegion);
     }
 
     exports.map = map;

@@ -162,6 +162,7 @@ like Node.</p>
     };
 
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getLocation</span><span class="hljs-params">(params, pattern)</span> </span>{
+
         <span class="hljs-keyword">return</span> {
             getQuery() {
                 <span class="hljs-keyword">return</span> params.query;
@@ -169,6 +170,7 @@ like Node.</p>
             getLocation(fragment = <span class="hljs-string">''</span>, isQuery) {
                 <span class="hljs-keyword">let</span> current = params.root.substring(<span class="hljs-number">0</span>, params.root.length - pattern.length),
                     newQuery;
+
                 <span class="hljs-keyword">if</span> (isQuery === <span class="hljs-literal">true</span>) {
                     newQuery = serialize(params.query);
                 }

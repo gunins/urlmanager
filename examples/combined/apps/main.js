@@ -14,9 +14,9 @@ define(['./mail/Mail', './settings/Settings', './app/App', '../common/Applicatio
             _super.prototype.run.call(this);
 
             this.router.match(function (match) {
-                match('mail', Mail.map);
-                match('app', App.map);
-                match('settings', Settings.map);
+                Mail.map(match('/mail'));
+                App.map(match('/app'));
+                Settings.map(match('/settings'));
             });
 
             window.addEventListener('hashchange', this.onHashChange.bind(this), false);

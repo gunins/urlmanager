@@ -19,15 +19,17 @@
     'use strict';
 
     class MatchBinder {
-        constructor(location, params, command) {
-            this.bindings = [];
-            this._activeBindings = [];
+        constructor(location, parent) {
+            this._parent = parent;
+            this.bindings = new Set();
             this.location = location || '';
-            this.command = command;
-            this.params = params;
             this._active = false;
 
         }
+
+        reTrigger() {
+            this._parent.reTrigger();
+        };
 
         match(pattern, mapHandler) {
             if (typeof pattern === 'function') {
@@ -44,7 +46,7 @@
             if (pattern) {
                 let binding = new MatchBinding(pattern, this.location, this);
                 binding.setSubBinder(MatchBinder, this.location + (pattern || ''), mapHandler);
-                this.bindings.push(binding);
+                this.bindings.add(binding);
                 return binding;
             } else {
                 if (typeof mapHandler === 'function') {
@@ -57,8 +59,8 @@
         };
 
         clearActive(params, location) {
-            let active = []
-            if (this.bindings.length > 0) {
+            let active = [];
+            if (this.bindings.size > 0) {
                 this.bindings.forEach((binding)=> {
                     active = active.concat(binding.clearActive(params, location));
                 });
@@ -67,53 +69,54 @@
         };
 
         checkStatus(matched, params) {
-            let status = []
-            if (this.bindings.length > 0) {
+            let active = []
+            if (this.bindings.size > 0) {
                 this.bindings.forEach((binding)=> {
-                    status = status.concat(binding.checkSegment(matched, params));
+                    active = active.concat(binding.checkSegment(matched, params));
                 });
             }
-            return status;
+            return active;
         };
 
         trigger(location, params, move) {
-            let matched = location.replace(/^\/|$/g, '').split('/'),
-                status = this.checkStatus(matched, params);
-            if (status.length > 0) {
-                let index = 0;
-                status.forEach((fn)=> {
-                    fn((applied)=> {
-                        if (applied) {
-                            index++;
-                        } else if (move) {
-                            move(false);
-                        }
-                        if (status.length === index) {
-                            this.triggerRoutes(location, params);
-                            if (move) {
-                                move(true);
+            if (this.bindings.size > 0) {
+                let matched = location.replace(/^\/|$/g, '').split('/'),
+                    active = this.checkStatus(matched, params);
+                if (active.length > 0) {
+                    let index = 0;
+                    active.forEach((fn)=> {
+                        fn((applied)=> {
+                            if (applied) {
+                                index++;
+                            } else if (move) {
+                                move(false);
                             }
+                            if (active.length === index) {
+                                this.triggerRoutes(location, params);
+                                if (move) {
+                                    move(true);
+                                }
 
-                        }
+                            }
+                        });
+
                     });
-
-                });
-            } else {
-                this.triggerRoutes(location, params);
-                if (move) {
-                    move(true);
+                } else {
+                    this.triggerRoutes(location, params);
+                    if (move) {
+                        move(true);
+                    }
                 }
             }
-
         };
 
         triggerRoutes(location, params) {
-            this.bindings.forEach(binding=>binding.triggerTo(location, params))
-
+            if (this.bindings.size > 0) {
+                this.bindings.forEach(binding=>binding.triggerTo(location, params))
+            }
         }
 
         run() {
-            this.command(this);
         };
     }
 

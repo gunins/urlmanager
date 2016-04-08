@@ -1,8 +1,8 @@
-define([ './inbox/Inbox', './inbox/EMail'], function (Inbox, EMail) {
+define(['./inbox/Inbox', './inbox/EMail'], function(Inbox, EMail) {
 
     function InboxRegion(match) {
-        match('(/)').to(Inbox);
-        match('/:id').to(EMail);
+        match('inbox').to(Inbox);
+        match('email(/:id)').to(EMail);
     }
 
     return InboxRegion;

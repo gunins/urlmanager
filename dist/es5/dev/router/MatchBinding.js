@@ -25,11 +25,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             _classCallCheck(this, MatchBinding);
 
             if (binder) {
-                this._binder = binder;
+                this.binder = binder;
             }
             if (location === '') {
                 this.pattern = pattern.replace(/^\(\/\)/g, '').replace(/^\/|$/g, '');
             } else {
+                var match = pattern.match(/^(\/|\(\/)/g);
+                if (match === null) {
+                    pattern = pattern[0] === '(' ? '(/' + pattern.substring(1) : '/' + pattern;
+                }
                 this.pattern = pattern;
             }
 
@@ -39,72 +43,61 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
             this.patternRegExp = new RegExp('^' + route);
 
-            this.routeHandler = [];
-            this.leaveHandler = [];
-            this.queryHandler = [];
-            this.routes = [];
+            this.routeHandler = new Set();
+            this.leaveHandler = new Set();
+            this.queryHandler = new Set();
             this._active = false;
         }
 
         _createClass(MatchBinding, [{
-            key: 'onBind',
-            value: function onBind() {}
-        }, {
-            key: 'setOnBind',
-            value: function setOnBind(onBinding) {
-                this.onBind = onBinding;
-            }
-        }, {
-            key: 'rebind',
-            value: function rebind() {
-                if (this.onBind !== undefined) {
-                    this.onBind();
-                }
-            }
-        }, {
             key: 'setRoutes',
-            value: function setRoutes(routes) {
-                this.routes.push(routes);
+            value: function setRoutes(mapHandler) {
+                var subBinder = this.subBinder;
+                mapHandler({
+                    match: subBinder.match.bind(subBinder),
+                    run: function run() {}
+                });
                 return this;
             }
         }, {
-            key: 'getRoutes',
-            value: function getRoutes() {
-                return this.routes;
+            key: 'reTrigger',
+            value: function reTrigger() {
+                this.binder.reTrigger();
             }
         }, {
             key: 'match',
             value: function match(_match) {
-                var subBinder = this.getSubBinder();
+                var subBinder = this.subBinder;
                 _match(subBinder.match.bind(subBinder));
                 return this;
             }
         }, {
             key: 'to',
             value: function to(routeHandler) {
-                this.routeHandler.push({ handler: routeHandler, done: false });
+                this.routeHandler.add({ handler: routeHandler, done: false });
+                // console.log(routeHandler, this.binder);
+                this.reTrigger();
                 return this;
             }
         }, {
             key: 'leave',
             value: function leave(leaveHandler) {
                 var args = utils.getArgs(leaveHandler);
-                this.leaveHandler.push({ handler: leaveHandler, done: args.length > 0 && args[0] === 'done' });
+                this.leaveHandler.add({ handler: leaveHandler, done: args.length > 0 && args[0] === 'done' });
                 return this;
             }
         }, {
             key: 'query',
             value: function query(queryHandler) {
-                this.queryHandler.push({ handler: queryHandler, done: false });
+                this.queryHandler.add({ handler: queryHandler, done: false });
                 return this;
             }
         }, {
             key: 'remove',
             value: function remove() {
-                this.routes.splice(0, this.routes.length);
-                this.routeHandler.splice(0, this.routeHandler.length);
-                this.leaveHandler.splice(0, this.leaveHandler.length);
-                this.queryHandler.splice(0, this.queryHandler.length);
+                this.routeHandler.clear();
+                this.leaveHandler.clear();
+                this.queryHandler.clear();
                 return this;
             }
         }, {
@@ -140,7 +133,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }, {
             key: 'setSubBinder',
             value: function setSubBinder(MatchBinder, pattern, mapHandler) {
-                var subBinder = new MatchBinder(pattern);
+                var subBinder = new MatchBinder(pattern, this);
                 this.subBinder = subBinder;
                 if (typeof mapHandler === 'function') {
                     mapHandler(subBinder.match.bind(subBinder));
@@ -148,32 +141,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 return subBinder;
             }
         }, {
-            key: 'getSubBinder',
-            value: function getSubBinder() {
-                return this.subBinder;
-            }
-        }, {
-            key: 'getHandler',
-            value: function getHandler() {
-                return this.routeHandler;
-            }
-        }, {
-            key: 'getLeaveHandler',
-            value: function getLeaveHandler() {
-                return this.leaveHandler;
-            }
-        }, {
-            key: 'getQueryHandler',
-            value: function getQueryHandler() {
-                return this.queryHandler;
-            }
-        }, {
             key: 'getHandlers',
             value: function getHandlers(name) {
                 var map = {
-                    to: 'getHandler', leave: 'getLeaveHandler', query: 'getQueryHandler'
+                    to: 'routeHandler', leave: 'leaveHandler', query: 'queryHandler'
                 };
-                return this[map[name]]();
+                return this[map[name]];
             }
         }, {
             key: 'checkSegment',
@@ -189,9 +162,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                     if (!equals) {
                         status = this.clearActive(params);
                     } else if (matched.length > 1) {
-                        status = this.getSubBinder().checkStatus(matched.slice(pattern.length), params);
+                        status = this.subBinder.checkStatus(matched.slice(pattern.length), params);
                     } else if (equals) {
-                        status = this.getSubBinder().clearActive(params);
+                        status = this.subBinder.clearActive(params);
                     }
                 }
                 return status;
@@ -205,7 +178,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                     this._active = false;
                 }
 
-                return active.concat(this.getSubBinder().clearActive());
+                return active.concat(this.subBinder.clearActive());
             }
         }, {
             key: 'triggerTo',
@@ -218,8 +191,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                     this.trigger('query', params, location);
                     var fragment = this.getFragment(location);
                     if (fragment.trim() !== '') {
-                        var subBinder = this.getSubBinder();
-                        if (subBinder && subBinder.bindings && subBinder.bindings.length > 0) {
+                        var subBinder = this.subBinder;
+                        if (subBinder) {
                             subBinder.trigger(fragment, params);
                         }
                     }
@@ -231,31 +204,33 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 var _this = this;
 
                 return function (cb) {
-                    var handlers = _this.getLeaveHandler(),
+                    var handlers = _this.leaveHandler,
                         loc = utils.getLocation(params, _this.prevLoc),
                         items = 0,
                         stopped = false;
-                    handlers.forEach(function (item) {
-                        if (item.done) {
-                            items++;
-                        }
-                        var caller = function caller() {
-                            var done = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
+                    if (handlers && handlers.size > 0) {
+                        handlers.forEach(function (item) {
+                            if (item.done) {
+                                items++;
+                            }
+                            var caller = function caller() {
+                                var done = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
 
-                            if (done) {
-                                items--;
-                                if (items === 0 && !stopped) {
-                                    cb(true);
+                                if (done) {
+                                    items--;
+                                    if (items === 0 && !stopped) {
+                                        cb(true);
+                                    }
+                                } else if (!done && !stopped) {
+                                    stopped = true;
                                 }
-                            } else if (!done && !stopped) {
-                                stopped = true;
-                            }
-                            if (stopped) {
-                                cb(false);
-                            }
-                        };
-                        item.handler(caller, loc);
-                    });
+                                if (stopped) {
+                                    cb(false);
+                                }
+                            };
+                            item.handler(caller, loc);
+                        });
+                    }
                     if (items === 0) {
                         cb(true);
                     }
@@ -267,6 +242,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 if (name === 'to') {
                     this.prevLoc = location;
                 }
+
                 var args = this.extractParams(location).concat(utils.getLocation(params, location)),
                     handlers = this.getHandlers(name);
                 this.applyHandlers(handlers, args);
@@ -278,11 +254,27 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
                 var args = arguments.length <= 1 || arguments[1] === undefined ? [] : arguments[1];
 
-                if (handlers && handlers.length > 0) {
+                if (handlers && handlers.size > 0) {
                     handlers.forEach(function (item) {
                         item.handler.apply(_this2, args);
                     });
                 }
+            }
+        }, {
+            key: 'binder',
+            get: function get() {
+                return this._binder;
+            },
+            set: function set(binder) {
+                this._binder = binder;
+            }
+        }, {
+            key: 'subBinder',
+            get: function get() {
+                return this._subBinder;
+            },
+            set: function set(subBinder) {
+                this._subBinder = subBinder;
             }
         }]);
 

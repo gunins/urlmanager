@@ -61,6 +61,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     };
 
     function getLocation(params, pattern) {
+
         return {
             getQuery: function getQuery() {
                 return params.query;
@@ -71,6 +72,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
                 var current = params.root.substring(0, params.root.length - pattern.length),
                     newQuery = void 0;
+
                 if (isQuery === true) {
                     newQuery = serialize(params.query);
                 } else if (isQuery === false) {

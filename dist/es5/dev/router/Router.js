@@ -35,7 +35,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         _createClass(Router, [{
             key: 'getBinder',
             value: function getBinder() {
-                return new MatchBinder();
+                return new MatchBinder('', this);
             }
         }, {
             key: 'test',
@@ -56,21 +56,29 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 return location;
             }
         }, {
+            key: 'reTrigger',
+            value: function reTrigger() {
+                if (this.prevLocation) {
+                    this.trigger(this.prevLocation);
+                }
+            }
+        }, {
             key: 'trigger',
             value: function trigger(location) {
                 var _this = this;
 
-                if (this.started) {
+                if (this.started && location) {
                     this.started = false;
                     var parts = location.split('?', 2),
-                        loc = this.getLocation(parts[0]);
-                    if (loc) {
+                        segments = this.getLocation(parts[0]);
+
+                    if (segments || segments === '') {
                         var query = utils.setQuery(parts[1]),
                             params = {
-                            root: loc,
+                            root: segments,
                             query: query
                         };
-                        this.root.trigger(loc, params, function (move) {
+                        this.root.trigger(segments, params, function (move) {
                             _this.setLocation(move ? location : _this.prevLocation);
                             _this.prevLocation = location;
                             _this.started = true;

@@ -26,7 +26,7 @@
             };
 
             getBinder() {
-                return new MatchBinder();
+                return new MatchBinder('', this);
             };
 
             test(loc) {
@@ -45,18 +45,25 @@
                 return location;
             };
 
+            reTrigger() {
+                if (this.prevLocation) {
+                    this.trigger(this.prevLocation);
+                }
+            };
+
             trigger(location) {
-                if (this.started) {
+                if (this.started && location) {
                     this.started = false;
                     let parts = location.split('?', 2),
-                        loc = this.getLocation(parts[0]);
-                    if (loc) {
+                        segments = this.getLocation(parts[0]);
+
+                    if (segments || segments === '') {
                         let query = utils.setQuery(parts[1]),
                             params = {
-                                root:  loc,
+                                root:  segments,
                                 query: query
                             };
-                        this.root.trigger(loc, params, (move)=> {
+                        this.root.trigger(segments, params, (move)=> {
                             this.setLocation(move ? location : this.prevLocation);
                             this.prevLocation = location;
                             this.started = true;

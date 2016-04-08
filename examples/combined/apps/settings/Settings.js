@@ -5,7 +5,7 @@ define(["require", "exports"], function(require, exports) {
     }
 
     function map(match) {
-        match('(/)').to(SettingsHandler);
+        match.to(SettingsHandler);
     }
     exports.map = map;
 });
