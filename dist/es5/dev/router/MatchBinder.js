@@ -136,9 +136,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                     });
                 }
             }
-        }, {
-            key: 'run',
-            value: function run() {}
         }]);
 
         return MatchBinder;

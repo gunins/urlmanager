@@ -39,7 +39,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
             var route = this.pattern.replace(MatchBinding.ESCAPE_PARAM, '\\$&').replace(MatchBinding.OPTIONAL_PARAM, '(?:$1)?').replace(MatchBinding.NAMED_PARAM, function (match, optional) {
                 return optional ? match : '([^\/]+)';
-            }).replace(MatchBinding.SPLAT_PARAM, '(.*?)');
+            }).replace(MatchBinding.SPLAT_PARAM, '(.*)');
 
             this.patternRegExp = new RegExp('^' + route);
 
@@ -54,8 +54,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             value: function setRoutes(mapHandler) {
                 var subBinder = this.subBinder;
                 mapHandler({
-                    match: subBinder.match.bind(subBinder),
-                    run: function run() {}
+                    match: subBinder.match.bind(subBinder)
                 });
                 return this;
             }
@@ -75,7 +74,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             key: 'to',
             value: function to(routeHandler) {
                 this.routeHandler.add({ handler: routeHandler, done: false });
-                // console.log(routeHandler, this.binder);
                 this.reTrigger();
                 return this;
             }
@@ -108,15 +106,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }, {
             key: 'getFragment',
             value: function getFragment(location) {
-                var subLocation = this.applyParams(location);
-                return location.replace(subLocation, '');
-            }
-        }, {
-            key: 'applyParams',
-            value: function applyParams(location) {
-                var matches = this.pattern.replace(/\((.*?)\)/g, '$1').split('/');
-                var matches2 = location.split('/');
-                return matches2.splice(0, matches.length).join('/');
+                var matches = location.match(this.patternRegExp);
+                return matches === null ? '' : location.substring(matches[0].length);
             }
         }, {
             key: 'extractParams',
@@ -139,14 +130,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                     mapHandler(subBinder.match.bind(subBinder));
                 }
                 return subBinder;
-            }
-        }, {
-            key: 'getHandlers',
-            value: function getHandlers(name) {
-                var map = {
-                    to: 'routeHandler', leave: 'leaveHandler', query: 'queryHandler'
-                };
-                return this[map[name]];
             }
         }, {
             key: 'checkSegment',
@@ -205,7 +188,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
                 return function (cb) {
                     var handlers = _this.leaveHandler,
-                        loc = utils.getLocation(params, _this.prevLoc),
+                        location = utils.getLocation(params, _this.prevLoc),
                         items = 0,
                         stopped = false;
                     if (handlers && handlers.size > 0) {
@@ -213,7 +196,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                             if (item.done) {
                                 items++;
                             }
-                            var caller = function caller() {
+                            item.handler(function () {
                                 var done = arguments.length <= 0 || arguments[0] === undefined ? true : arguments[0];
 
                                 if (done) {
@@ -227,14 +210,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                                 if (stopped) {
                                     cb(false);
                                 }
-                            };
-                            item.handler(caller, loc);
+                            }, location);
                         });
                     }
                     if (items === 0) {
                         cb(true);
                     }
                 };
+            }
+        }, {
+            key: 'getHandlers',
+            value: function getHandlers(name) {
+                var map = {
+                    to: 'routeHandler', leave: 'leaveHandler', query: 'queryHandler'
+                };
+                return this[map[name]];
             }
         }, {
             key: 'trigger',
@@ -259,22 +249,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                         item.handler.apply(_this2, args);
                     });
                 }
-            }
-        }, {
-            key: 'binder',
-            get: function get() {
-                return this._binder;
-            },
-            set: function set(binder) {
-                this._binder = binder;
-            }
-        }, {
-            key: 'subBinder',
-            get: function get() {
-                return this._subBinder;
-            },
-            set: function set(subBinder) {
-                this._subBinder = subBinder;
             }
         }]);
 

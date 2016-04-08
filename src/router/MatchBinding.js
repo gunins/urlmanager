@@ -34,7 +34,7 @@
                 .replace(MatchBinding.OPTIONAL_PARAM, '(?:$1)?')
                 .replace(MatchBinding.NAMED_PARAM, function(match, optional) {
                     return optional ? match : '([^\/]+)';
-                }).replace(MatchBinding.SPLAT_PARAM, '(.*?)');
+                }).replace(MatchBinding.SPLAT_PARAM, '(.*)');
 
             this.patternRegExp = new RegExp('^' + route);
 
@@ -44,28 +44,10 @@
             this._active = false;
         }
 
-        get binder() {
-            return this._binder;
-        }
-
-        set binder(binder) {
-            this._binder = binder;
-        }
-
-        get subBinder() {
-            return this._subBinder;
-        }
-
-        set subBinder(subBinder) {
-            this._subBinder = subBinder;
-        }
-
         setRoutes(mapHandler) {
             var subBinder = this.subBinder;
             mapHandler({
-                match: subBinder.match.bind(subBinder),
-                run(){
-                }
+                match: subBinder.match.bind(subBinder)
             });
             return this;
         };
@@ -82,7 +64,6 @@
 
         to(routeHandler) {
             this.routeHandler.add({handler: routeHandler, done: false});
-            // console.log(routeHandler, this.binder);
             this.reTrigger();
             return this;
         };
@@ -110,14 +91,8 @@
         };
 
         getFragment(location) {
-            let subLocation = this.applyParams(location);
-            return location.replace(subLocation, '');
-        };
-
-        applyParams(location) {
-            let matches = this.pattern.replace(/\((.*?)\)/g, '$1').split('/');
-            let matches2 = location.split('/');
-            return matches2.splice(0, matches.length).join('/');
+            let matches = location.match(this.patternRegExp);
+            return matches === null ? '' : location.substring(matches[0].length);
         };
 
         extractParams(fragment) {
@@ -140,12 +115,6 @@
             return subBinder;
         };
 
-        getHandlers(name) {
-            let map = {
-                to: 'routeHandler', leave: 'leaveHandler', query: 'queryHandler'
-            }
-            return this[map[name]];
-        };
 
         checkSegment(matched, params) {
             let status = [];
@@ -197,7 +166,7 @@
         triggerLeave(params) {
             return (cb)=> {
                 let handlers = this.leaveHandler,
-                    loc = utils.getLocation(params, this.prevLoc),
+                    location = utils.getLocation(params, this.prevLoc),
                     items = 0,
                     stopped = false;
                 if (handlers && handlers.size > 0) {
@@ -205,7 +174,7 @@
                         if (item.done) {
                             items++;
                         }
-                        let caller = (done = true)=> {
+                        item.handler((done = true)=> {
                             if (done) {
                                 items--;
                                 if (items === 0 && !stopped) {
@@ -217,8 +186,7 @@
                             if (stopped) {
                                 cb(false);
                             }
-                        }
-                        item.handler(caller, loc);
+                        }, location);
 
                     });
                 }
@@ -227,6 +195,13 @@
                 }
             }
         }
+
+        getHandlers(name) {
+            let map = {
+                to: 'routeHandler', leave: 'leaveHandler', query: 'queryHandler'
+            }
+            return this[map[name]];
+        };
 
         trigger(name, params, location) {
             if (name === 'to') {

@@ -115,9 +115,6 @@
                 this.bindings.forEach(binding=>binding.triggerTo(location, params))
             }
         }
-
-        run() {
-        };
     }
 
     return MatchBinder;
