@@ -106,6 +106,7 @@ In this case function will be triggered when location hash `#/levelA?a=15` query
 
 In this case function will be triggered when location hash `#/item/5` will be triggered params `a = item` and `b=5`
 
+
 ###Optional params
 
         match('/:a(/:b)').to(function (a,b) {
@@ -114,6 +115,15 @@ In this case function will be triggered when location hash `#/item/5` will be tr
         });
 
 In this case function will be triggered when location hash `#/item` and `#/item/5` will be triggered
+
+###Splat params
+
+        match('/file/*file').to(function (file) {
+            /file 
+            ... Your Function execution
+        });
+
+In this case function will be triggered when location hash `#/file/file/location/file.txt` will be triggered and `file/location/file.txt` will return as extension
 
 ### Chaining Methods
 
