@@ -78,6 +78,12 @@
             return active;
         };
 
+        remove() {
+            if (this.bindings.size > 0) {
+                this.bindings.forEach((binding)=> binding.remove());
+            }
+        };
+
         trigger(location, params, move) {
             if (this.bindings.size > 0) {
                 let matched = location.replace(/^\/|$/g, '').split('/'),

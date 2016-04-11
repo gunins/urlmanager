@@ -180,6 +180,12 @@ like Node.</p>
             <span class="hljs-keyword">return</span> active;
         };
 
+        remove() {
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.bindings.size &gt; <span class="hljs-number">0</span>) {
+                <span class="hljs-keyword">this</span>.bindings.forEach((binding)=&gt; binding.remove());
+            }
+        };
+
         trigger(location, params, move) {
             <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.bindings.size &gt; <span class="hljs-number">0</span>) {
                 <span class="hljs-keyword">let</span> matched = location.replace(<span class="hljs-regexp">/^\/|$/g</span>, <span class="hljs-string">''</span>).split(<span class="hljs-string">'/'</span>),

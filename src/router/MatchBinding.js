@@ -83,6 +83,7 @@
             this.routeHandler.clear();
             this.leaveHandler.clear();
             this.queryHandler.clear();
+            this.subBinder.remove();
             return this;
         };
 

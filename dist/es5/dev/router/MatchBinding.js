@@ -96,6 +96,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 this.routeHandler.clear();
                 this.leaveHandler.clear();
                 this.queryHandler.clear();
+                this.subBinder.remove();
                 return this;
             }
         }, {

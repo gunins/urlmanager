@@ -91,6 +91,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 return active;
             }
         }, {
+            key: 'remove',
+            value: function remove() {
+                if (this.bindings.size > 0) {
+                    this.bindings.forEach(function (binding) {
+                        return binding.remove();
+                    });
+                }
+            }
+        }, {
             key: 'trigger',
             value: function trigger(location, params, move) {
                 var _this = this;

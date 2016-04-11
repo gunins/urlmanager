@@ -206,6 +206,7 @@
             this.routeHandler.clear();
             this.leaveHandler.clear();
             this.queryHandler.clear();
+            this.subBinder.remove();
             return this;
         };
 
@@ -423,6 +424,12 @@
                 });
             }
             return active;
+        };
+
+        remove() {
+            if (this.bindings.size > 0) {
+                this.bindings.forEach((binding)=> binding.remove());
+            }
         };
 
         trigger(location, params, move) {
