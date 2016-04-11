@@ -68,7 +68,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 var _this = this;
 
                 if (this.started && location) {
-                    this.started = false;
+                    // this.started = false;
                     var parts = location.split('?', 2),
                         segments = this.getLocation(parts[0]);
 
@@ -81,7 +81,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                         this.root.trigger(segments, params, function (move) {
                             _this.setLocation(move ? location : _this.prevLocation);
                             _this.prevLocation = location;
-                            _this.started = true;
+                            // this.started = true;
                         });
                     }
                 }
