@@ -120,8 +120,8 @@
 
         });
     });
-    router.match(function(match) {
 
+    router.match(function(match) {
         //Another Route
         match('/levelA', function(match) {
             match().match(function(match) {
@@ -211,6 +211,18 @@
             console.log('levelD triggered');
 
         });
+
+        //optional Routes
+        match('optional', function(match) {
+            match('/page-:a(/:b)').to(function(a, b) {
+                route.optionalA = a;
+                route.optionalB = b;
+
+            });
+            match('file/*filename').to(function(filename) {
+                route.filename = filename;
+            })
+        })
 
     });
 
@@ -469,6 +481,42 @@
                     router.trigger('levelB/');
                     var compare = {
                         levelOptCLeave: 'leaved',
+                    };
+                    expect(route).to.deep.equal(compare);
+                });
+
+            });
+
+            describe('Optional Parameters', function() {
+                it('optional/page-a route triggered, required param equals a, optional param equals null', function() {
+                    router.trigger('optional/page-a');
+                    console.log(route);
+                    var compare = {
+                        optionalA: 'a',
+                        optionalB: null
+                    };
+                    expect(route).to.deep.equal(compare);
+                });
+                it('optional/page-a/b route triggered and a param not changed b equals b', function() {
+                    router.trigger('optional/page-a/b');
+                    var compare = {
+                        optionalA: 'a',
+                        optionalB: 'b'
+                    };
+                    expect(route).to.deep.equal(compare);
+                });
+                it('optional/page-c/d route triggered and both params are changed', function() {
+                    router.trigger('optional/page-c/d');
+                    var compare = {
+                        optionalA: 'c',
+                        optionalB: 'd'
+                    };
+                    expect(route).to.deep.equal(compare);
+                });
+                it('optional/file/path/to/file.txt route triggered full segment passed', function() {
+                    router.trigger('optional/file/path/to/file.txt');
+                    var compare = {
+                        filename: 'path/to/file.txt'
                     };
                     expect(route).to.deep.equal(compare);
                 });

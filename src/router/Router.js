@@ -53,7 +53,7 @@
 
             trigger(location) {
                 if (this.started && location) {
-                    this.started = false;
+                    // this.started = false;
                     let parts = location.split('?', 2),
                         segments = this.getLocation(parts[0]);
 
@@ -66,7 +66,7 @@
                         this.root.trigger(segments, params, (move)=> {
                             this.setLocation(move ? location : this.prevLocation);
                             this.prevLocation = location;
-                            this.started = true;
+                            // this.started = true;
                         });
                     }
                 }
