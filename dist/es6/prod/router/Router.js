@@ -271,11 +271,17 @@
 
         triggerTo(location, params) {
             if (this.test(location)) {
+                // check if to is triggered
                 if (!this._active) {
-                    this.trigger('to', params, location);
+                    this.prevLoc = location;
+                    let args = this.extractParams(location).concat(utils.getLocation(params, location));
+                    this.applyHandlers(this.routeHandler, args)
                     this._active = true;
                 }
-                this.trigger('query', params, location);
+
+                // trigger query handler
+                this.applyHandlers(this.queryHandler, [utils.getLocation(params, location)]);
+
                 let fragment = this.getFragment(location);
                 if (fragment.trim() !== '') {
                     let subBinder = this.subBinder;
@@ -283,6 +289,14 @@
                         subBinder.trigger(fragment, params);
                     }
                 }
+            }
+        };
+
+        applyHandlers(handlers, args = []) {
+            if (handlers && handlers.size > 0) {
+                handlers.forEach((item)=> {
+                    item.handler.apply(this, args);
+                });
             }
         };
 
@@ -317,32 +331,9 @@
                     cb(true);
                 }
             }
-        }
-
-        getHandlers(name) {
-            let map = {
-                to: 'routeHandler', leave: 'leaveHandler', query: 'queryHandler'
-            }
-            return this[map[name]];
         };
 
-        trigger(name, params, location) {
-            if (name === 'to') {
-                this.prevLoc = location;
-            }
 
-            let args = this.extractParams(location).concat(utils.getLocation(params, location)),
-                handlers = this.getHandlers(name);
-            this.applyHandlers(handlers, args)
-        };
-
-        applyHandlers(handlers, args = []) {
-            if (handlers && handlers.size > 0) {
-                handlers.forEach((item)=> {
-                    item.handler.apply(this, args);
-                });
-            }
-        }
     }
 
     Object.assign(MatchBinding, {

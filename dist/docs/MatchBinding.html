@@ -236,12 +236,43 @@ like Node.</p>
         }
 
         triggerTo(location, params) {
-            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.test(location)) {
-                <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>._active) {
-                    <span class="hljs-keyword">this</span>.trigger(<span class="hljs-string">'to'</span>, params, location);
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.test(location)) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-4">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>check if to is triggered</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>._active) {
+                    <span class="hljs-keyword">this</span>.prevLoc = location;
+                    <span class="hljs-keyword">let</span> args = <span class="hljs-keyword">this</span>.extractParams(location).concat(utils.getLocation(params, location));
+                    <span class="hljs-keyword">this</span>.applyHandlers(<span class="hljs-keyword">this</span>.routeHandler, args)
                     <span class="hljs-keyword">this</span>._active = <span class="hljs-literal">true</span>;
-                }
-                <span class="hljs-keyword">this</span>.trigger(<span class="hljs-string">'query'</span>, params, location);
+                }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-5">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>trigger query handler</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">this</span>.applyHandlers(<span class="hljs-keyword">this</span>.queryHandler, [utils.getLocation(params, location)]);
+
                 <span class="hljs-keyword">let</span> fragment = <span class="hljs-keyword">this</span>.getFragment(location);
                 <span class="hljs-keyword">if</span> (fragment.trim() !== <span class="hljs-string">''</span>) {
                     <span class="hljs-keyword">let</span> subBinder = <span class="hljs-keyword">this</span>.subBinder;
@@ -249,6 +280,14 @@ like Node.</p>
                         subBinder.trigger(fragment, params);
                     }
                 }
+            }
+        };
+
+        applyHandlers(handlers, args = []) {
+            <span class="hljs-keyword">if</span> (handlers &amp;&amp; handlers.size &gt; <span class="hljs-number">0</span>) {
+                handlers.forEach((item)=&gt; {
+                    item.handler.apply(<span class="hljs-keyword">this</span>, args);
+                });
             }
         };
 
@@ -283,32 +322,9 @@ like Node.</p>
                     cb(<span class="hljs-literal">true</span>);
                 }
             }
-        }
-
-        getHandlers(name) {
-            <span class="hljs-keyword">let</span> map = {
-                to: <span class="hljs-string">'routeHandler'</span>, leave: <span class="hljs-string">'leaveHandler'</span>, query: <span class="hljs-string">'queryHandler'</span>
-            }
-            <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>[map[name]];
         };
 
-        trigger(name, params, location) {
-            <span class="hljs-keyword">if</span> (name === <span class="hljs-string">'to'</span>) {
-                <span class="hljs-keyword">this</span>.prevLoc = location;
-            }
 
-            <span class="hljs-keyword">let</span> args = <span class="hljs-keyword">this</span>.extractParams(location).concat(utils.getLocation(params, location)),
-                handlers = <span class="hljs-keyword">this</span>.getHandlers(name);
-            <span class="hljs-keyword">this</span>.applyHandlers(handlers, args)
-        };
-
-        applyHandlers(handlers, args = []) {
-            <span class="hljs-keyword">if</span> (handlers &amp;&amp; handlers.size &gt; <span class="hljs-number">0</span>) {
-                handlers.forEach((item)=&gt; {
-                    item.handler.apply(<span class="hljs-keyword">this</span>, args);
-                });
-            }
-        }
     }
 
     <span class="hljs-built_in">Object</span>.assign(MatchBinding, {

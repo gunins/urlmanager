@@ -167,11 +167,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             key: 'triggerTo',
             value: function triggerTo(location, params) {
                 if (this.test(location)) {
+                    // check if to is triggered
                     if (!this._active) {
-                        this.trigger('to', params, location);
+                        this.prevLoc = location;
+                        var args = this.extractParams(location).concat(utils.getLocation(params, location));
+                        this.applyHandlers(this.routeHandler, args);
                         this._active = true;
                     }
-                    this.trigger('query', params, location);
+
+                    // trigger query handler
+                    this.applyHandlers(this.queryHandler, [utils.getLocation(params, location)]);
+
                     var fragment = this.getFragment(location);
                     if (fragment.trim() !== '') {
                         var subBinder = this.subBinder;
@@ -182,13 +188,26 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 }
             }
         }, {
-            key: 'triggerLeave',
-            value: function triggerLeave(params) {
+            key: 'applyHandlers',
+            value: function applyHandlers(handlers) {
                 var _this = this;
 
+                var args = arguments.length <= 1 || arguments[1] === undefined ? [] : arguments[1];
+
+                if (handlers && handlers.size > 0) {
+                    handlers.forEach(function (item) {
+                        item.handler.apply(_this, args);
+                    });
+                }
+            }
+        }, {
+            key: 'triggerLeave',
+            value: function triggerLeave(params) {
+                var _this2 = this;
+
                 return function (cb) {
-                    var handlers = _this.leaveHandler,
-                        location = utils.getLocation(params, _this.prevLoc),
+                    var handlers = _this2.leaveHandler,
+                        location = utils.getLocation(params, _this2.prevLoc),
                         items = 0,
                         stopped = false;
                     if (handlers && handlers.size > 0) {
@@ -217,38 +236,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                         cb(true);
                     }
                 };
-            }
-        }, {
-            key: 'getHandlers',
-            value: function getHandlers(name) {
-                var map = {
-                    to: 'routeHandler', leave: 'leaveHandler', query: 'queryHandler'
-                };
-                return this[map[name]];
-            }
-        }, {
-            key: 'trigger',
-            value: function trigger(name, params, location) {
-                if (name === 'to') {
-                    this.prevLoc = location;
-                }
-
-                var args = this.extractParams(location).concat(utils.getLocation(params, location)),
-                    handlers = this.getHandlers(name);
-                this.applyHandlers(handlers, args);
-            }
-        }, {
-            key: 'applyHandlers',
-            value: function applyHandlers(handlers) {
-                var _this2 = this;
-
-                var args = arguments.length <= 1 || arguments[1] === undefined ? [] : arguments[1];
-
-                if (handlers && handlers.size > 0) {
-                    handlers.forEach(function (item) {
-                        item.handler.apply(_this2, args);
-                    });
-                }
             }
         }]);
 
