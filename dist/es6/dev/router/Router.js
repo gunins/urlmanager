@@ -46,14 +46,15 @@
             };
 
             reTrigger() {
-                if (this.prevLocation) {
-                    this.trigger(this.prevLocation);
+                if (this.currLocation) {
+                    this.trigger(this.currLocation);
                 }
             };
 
             trigger(location) {
                 if (this.started && location) {
                     // this.started = false;
+                    this.currLocation = location;
                     let parts = location.split('?', 2),
                         segments = this.getLocation(parts[0]);
 

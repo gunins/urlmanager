@@ -135,8 +135,8 @@ like Node.</p>
             };
 
             reTrigger() {
-                <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.prevLocation) {
-                    <span class="hljs-keyword">this</span>.trigger(<span class="hljs-keyword">this</span>.prevLocation);
+                <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.currLocation) {
+                    <span class="hljs-keyword">this</span>.trigger(<span class="hljs-keyword">this</span>.currLocation);
                 }
             };
 
@@ -156,7 +156,8 @@ like Node.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                    <span class="hljs-keyword">let</span> parts = location.split(<span class="hljs-string">'?'</span>, <span class="hljs-number">2</span>),
+            <div class="content"><div class='highlight'><pre>                    <span class="hljs-keyword">this</span>.currLocation = location;
+                    <span class="hljs-keyword">let</span> parts = location.split(<span class="hljs-string">'?'</span>, <span class="hljs-number">2</span>),
                         segments = <span class="hljs-keyword">this</span>.getLocation(parts[<span class="hljs-number">0</span>]);
 
                     <span class="hljs-keyword">if</span> (segments || segments === <span class="hljs-string">''</span>) {

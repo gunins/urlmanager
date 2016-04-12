@@ -58,8 +58,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }, {
             key: 'reTrigger',
             value: function reTrigger() {
-                if (this.prevLocation) {
-                    this.trigger(this.prevLocation);
+                if (this.currLocation) {
+                    this.trigger(this.currLocation);
                 }
             }
         }, {
@@ -69,6 +69,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
                 if (this.started && location) {
                     // this.started = false;
+                    this.currLocation = location;
                     var parts = location.split('?', 2),
                         segments = this.getLocation(parts[0]);
 
