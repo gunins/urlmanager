@@ -141,22 +141,9 @@ like Node.</p>
             };
 
             trigger(location) {
-                <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.started &amp;&amp; location) {</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-4">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-4">&#182;</a>
-              </div>
-              <p>this.started = false;</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>                    <span class="hljs-keyword">this</span>.currLocation = location;
+                <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.started &amp;&amp; location) {
+                    <span class="hljs-keyword">this</span>.started = <span class="hljs-literal">false</span>;
+                    <span class="hljs-keyword">this</span>.currLocation = location;
                     <span class="hljs-keyword">let</span> parts = location.split(<span class="hljs-string">'?'</span>, <span class="hljs-number">2</span>),
                         segments = <span class="hljs-keyword">this</span>.getLocation(parts[<span class="hljs-number">0</span>]);
 
@@ -168,22 +155,9 @@ like Node.</p>
                             };
                         <span class="hljs-keyword">this</span>.root.trigger(segments, params, (move)=&gt; {
                             <span class="hljs-keyword">this</span>.setLocation(move ? location : <span class="hljs-keyword">this</span>.prevLocation);
-                            <span class="hljs-keyword">this</span>.prevLocation = location;</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-5">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-5">&#182;</a>
-              </div>
-              <p>this.started = true;</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>                        });
+                            <span class="hljs-keyword">this</span>.prevLocation = location;
+                            <span class="hljs-keyword">this</span>.started = <span class="hljs-literal">true</span>;
+                        });
                     }
                 }
             };
