@@ -87,13 +87,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
                 var matched = location.replace(/^\/|$/g, '').split('/'),
                     binder = this.root,
-                    active = binder.checkStatus(matched, params),
-                    move = function move(_move) {
-                    var loc = _move ? _this.currLocation : _this.prevLocation;
-                    _this.setLocation(loc);
-                    _this.prevLocation = loc;
-                    _this.started = true;
-                };
+                    active = binder.checkStatus(matched, params);
                 if (active.length > 0) {
                     active.forEach(function (item) {
                         item.handler(function (applied) {
@@ -107,20 +101,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                                         return item.disable();
                                     });
                                     binder.triggerRoutes(location, params);
-                                    move(true);
+                                    _this.setLocation(true);
                                 } else if (active.filter(function (item) {
                                     return item.triggered;
                                 }).length === active.length) {
-                                    move(false);
+                                    _this.setLocation(false);
                                 }
                             }
                         });
                     });
                 } else {
                     binder.triggerRoutes(location, params);
-                    if (move) {
-                        move(true);
-                    }
+                    this.setLocation(true);
                 }
             }
         }, {
@@ -136,7 +128,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             }
         }, {
             key: 'setLocation',
-            value: function setLocation(location) {
+            value: function setLocation(move) {
+                var location = move ? this.currLocation : this.prevLocation;
+                this.prevLocation = location;
+                this.started = true;
                 this._listeners.forEach(function (listener) {
                     return listener(location);
                 });

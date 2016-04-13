@@ -72,13 +72,7 @@
             execute(location, params) {
                 let matched = location.replace(/^\/|$/g, '').split('/'),
                     binder = this.root,
-                    active = binder.checkStatus(matched, params),
-                    move = (move)=> {
-                        let loc = move ? this.currLocation : this.prevLocation;
-                        this.setLocation(loc);
-                        this.prevLocation = loc;
-                        this.started = true;
-                    };
+                    active = binder.checkStatus(matched, params);
                 if (active.length > 0) {
                     active.forEach((item)=> {
                         item.handler((applied)=> {
@@ -88,9 +82,9 @@
                                 if (active.filter(item=>item.applied).length === active.length) {
                                     active.forEach(item=>item.disable());
                                     binder.triggerRoutes(location, params);
-                                    move(true);
+                                    this.setLocation(true);
                                 } else if (active.filter(item=>item.triggered).length === active.length) {
-                                    move(false);
+                                    this.setLocation(false);
                                 }
                             }
                         });
@@ -98,9 +92,7 @@
 
                 } else {
                     binder.triggerRoutes(location, params);
-                    if (move) {
-                        move(true);
-                    }
+                    this.setLocation(true);
                 }
 
             };
@@ -116,7 +108,10 @@
             };
 
 
-            setLocation(location) {
+            setLocation(move) {
+                let location = move ? this.currLocation : this.prevLocation;
+                this.prevLocation = location;
+                this.started = true;
                 this._listeners.forEach(listener=>listener(location));
 
             };

@@ -89,7 +89,6 @@
                             done();
                         }, 200)
                     }).leave(function(done) {
-                        // console.log('testing done', done);
                         setTimeout(function() {
                             route.listLeaveb = 'leave300';
                             done();
@@ -164,7 +163,6 @@
 
         }).leave(function(done) {
             setTimeout(function() {
-                console.log(count);
                 route.leavedR = 'not Triggered:' + count;
                 done(count);
                 count++;
@@ -293,7 +291,6 @@
 
                 it('levelA/levelR lazy route triggered should equal to levelR and id = 35', function() {
                     router.trigger('/levelA/levelR/35');
-                    console.log(route);
                     expect(route).to.deep.equal({
                         levelA:   'levelA',
                         levelACh: 'levelACh',
@@ -303,7 +300,6 @@
                 });
                 it('levelA/levelR lazy route triggered should equal to levelR and id = 36', function() {
                     router.trigger('/levelA/levelR/36');
-                    console.log(route);
                     expect(route).to.deep.equal({levelR: 'levelR: 36'});
 
                 });
@@ -329,7 +325,6 @@
 
                 it('levelA route triggered should equal to levelA levelACh', function() {
                     router.trigger('/levelA');
-                    console.log(route);
                     expect(route).to.deep.equal({levelA: 'levelA', levelACh: 'levelACh'});
                 });
 
@@ -361,7 +356,6 @@
 
                 it('levelR route triggered but Leave not accepted', function(done) {
                     router.trigger('/levelR');
-                    console.log(route);
                     expect(route).to.deep.equal({
                         levelTestR:  'levelR',
                         levelAleave: 'levelAleave'
@@ -373,7 +367,6 @@
                     router.trigger('/levelS');
 
                     setTimeout(function() {
-                        console.log(route);
                         expect(route).to.deep.equal({
                             levelTestR:  'levelR',
                             leavedR:     'not Triggered:0',
@@ -381,7 +374,6 @@
                         });
                         router.trigger('/levelS');
                         setTimeout(function() {
-                            console.log(route);
                             expect(route).to.deep.equal({
                                 levelTestR:  'levelR',
                                 leavedR:     'not Triggered:1',
@@ -405,7 +397,6 @@
 
                     router.trigger('/levelV');
                     setTimeout(function() {
-                        console.log(route);
 
                         expect(route).to.deep.equal({
                             levelTestT: 'levelT',
@@ -445,7 +436,6 @@
                         listLocation: 'levelB/a/b/c/list',
                         listLeave:    'leave'
                     };
-                    console.log(route);
 
                     expect(route).to.deep.equal(compare);
                 });
@@ -516,7 +506,6 @@
             describe('Optional Parameters', function() {
                 it('optional/page-a route triggered, required param equals a, optional param equals null', function() {
                     router.trigger('optional/page-a');
-                    console.log(route);
                     var compare = {
                         optionalA: 'a',
                         optionalB: null
