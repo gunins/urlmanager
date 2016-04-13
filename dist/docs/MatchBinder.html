@@ -186,37 +186,7 @@ like Node.</p>
             }
         };
 
-        trigger(location, params, move) {
-            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.bindings.size &gt; <span class="hljs-number">0</span>) {
-                <span class="hljs-keyword">let</span> matched = location.replace(<span class="hljs-regexp">/^\/|$/g</span>, <span class="hljs-string">''</span>).split(<span class="hljs-string">'/'</span>),
-                    active = <span class="hljs-keyword">this</span>.checkStatus(matched, params);
-                <span class="hljs-keyword">if</span> (active.length &gt; <span class="hljs-number">0</span>) {
-                    <span class="hljs-keyword">let</span> index = <span class="hljs-number">0</span>;
-                    active.forEach((fn)=&gt; {
-                        fn((applied)=&gt; {
-                            <span class="hljs-keyword">if</span> (applied) {
-                                index++;
-                            } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (move) {
-                                move(<span class="hljs-literal">false</span>);
-                            }
-                            <span class="hljs-keyword">if</span> (active.length === index) {
-                                <span class="hljs-keyword">this</span>.triggerRoutes(location, params);
-                                <span class="hljs-keyword">if</span> (move) {
-                                    move(<span class="hljs-literal">true</span>);
-                                }
-
-                            }
-                        });
-
-                    });
-                } <span class="hljs-keyword">else</span> {
-                    <span class="hljs-keyword">this</span>.triggerRoutes(location, params);
-                    <span class="hljs-keyword">if</span> (move) {
-                        move(<span class="hljs-literal">true</span>);
-                    }
-                }
-            }
-        };
+     
 
         triggerRoutes(location, params) {
             <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.bindings.size &gt; <span class="hljs-number">0</span>) {

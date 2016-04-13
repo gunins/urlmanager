@@ -229,11 +229,17 @@ like Node.</p>
         clearActive(params) {
             <span class="hljs-keyword">let</span> active = [];
             <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>._active) {
-                active.push(<span class="hljs-keyword">this</span>.triggerLeave(params));
-                <span class="hljs-keyword">this</span>._active = <span class="hljs-literal">false</span>;
+                active.push({
+                    handler: <span class="hljs-keyword">this</span>.triggerLeave(params),
+                    disable: <span class="hljs-keyword">this</span>.disable.bind(<span class="hljs-keyword">this</span>)
+                });
             }
 
             <span class="hljs-keyword">return</span> active.concat(<span class="hljs-keyword">this</span>.subBinder.clearActive());
+        }
+
+        disable() {
+            <span class="hljs-keyword">this</span>._active = <span class="hljs-literal">false</span>;
         }
 
         triggerTo(location, params) {
@@ -278,7 +284,7 @@ like Node.</p>
                 <span class="hljs-keyword">if</span> (fragment.trim() !== <span class="hljs-string">''</span>) {
                     <span class="hljs-keyword">let</span> subBinder = <span class="hljs-keyword">this</span>.subBinder;
                     <span class="hljs-keyword">if</span> (subBinder) {
-                        subBinder.trigger(fragment, params);
+                        subBinder.triggerRoutes(fragment, params);
                     }
                 }
             }
@@ -311,12 +317,9 @@ like Node.</p>
                                 }
                             } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (!done &amp;&amp; !stopped) {
                                 stopped = <span class="hljs-literal">true</span>;
-                            }
-                            <span class="hljs-keyword">if</span> (stopped) {
                                 cb(<span class="hljs-literal">false</span>);
                             }
                         }, location);
-
                     });
                 }
                 <span class="hljs-keyword">if</span> (items === <span class="hljs-number">0</span>) {

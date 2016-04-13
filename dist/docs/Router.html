@@ -140,26 +140,58 @@ like Node.</p>
                 }
             };
 
+
             trigger(location) {
                 <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.started &amp;&amp; location) {
                     <span class="hljs-keyword">this</span>.started = <span class="hljs-literal">false</span>;
                     <span class="hljs-keyword">this</span>.currLocation = location;
                     <span class="hljs-keyword">let</span> parts = location.split(<span class="hljs-string">'?'</span>, <span class="hljs-number">2</span>),
                         segments = <span class="hljs-keyword">this</span>.getLocation(parts[<span class="hljs-number">0</span>]);
-
                     <span class="hljs-keyword">if</span> (segments || segments === <span class="hljs-string">''</span>) {
                         <span class="hljs-keyword">let</span> query = utils.setQuery(parts[<span class="hljs-number">1</span>]),
                             params = {
                                 root:  segments,
                                 query: query
                             };
-                        <span class="hljs-keyword">this</span>.root.trigger(segments, params, (move)=&gt; {
-                            <span class="hljs-keyword">this</span>.setLocation(move ? location : <span class="hljs-keyword">this</span>.prevLocation);
-                            <span class="hljs-keyword">this</span>.prevLocation = location;
-                            <span class="hljs-keyword">this</span>.started = <span class="hljs-literal">true</span>;
-                        });
+                        <span class="hljs-keyword">this</span>.execute(segments, params);
                     }
                 }
+            };
+
+            execute(location, params) {
+                <span class="hljs-keyword">let</span> matched = location.replace(<span class="hljs-regexp">/^\/|$/g</span>, <span class="hljs-string">''</span>).split(<span class="hljs-string">'/'</span>),
+                    binder = <span class="hljs-keyword">this</span>.root,
+                    active = binder.checkStatus(matched, params),
+                    move = (move)=&gt; {
+                        <span class="hljs-keyword">let</span> loc = move ? <span class="hljs-keyword">this</span>.currLocation : <span class="hljs-keyword">this</span>.prevLocation;
+                        <span class="hljs-keyword">this</span>.setLocation(loc);
+                        <span class="hljs-keyword">this</span>.prevLocation = loc;
+                        <span class="hljs-keyword">this</span>.started = <span class="hljs-literal">true</span>;
+                    };
+                <span class="hljs-keyword">if</span> (active.length &gt; <span class="hljs-number">0</span>) {
+                    active.forEach((item)=&gt; {
+                        item.handler((applied)=&gt; {
+                            <span class="hljs-keyword">if</span> (!item.triggered) {
+                                item.triggered = <span class="hljs-literal">true</span>;
+                                item.applied = applied;
+                                <span class="hljs-keyword">if</span> (active.filter(item=&gt;item.applied).length === active.length) {
+                                    active.forEach(item=&gt;item.disable());
+                                    binder.triggerRoutes(location, params);
+                                    move(<span class="hljs-literal">true</span>);
+                                } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (active.filter(item=&gt;item.triggered).length === active.length) {
+                                    move(<span class="hljs-literal">false</span>);
+                                }
+                            }
+                        });
+                    });
+
+                } <span class="hljs-keyword">else</span> {
+                    binder.triggerRoutes(location, params);
+                    <span class="hljs-keyword">if</span> (move) {
+                        move(<span class="hljs-literal">true</span>);
+                    }
+                }
+
             };
 
             setListener(listener) {

@@ -140,11 +140,17 @@
         clearActive(params) {
             let active = [];
             if (this._active) {
-                active.push(this.triggerLeave(params));
-                this._active = false;
+                active.push({
+                    handler: this.triggerLeave(params),
+                    disable: this.disable.bind(this)
+                });
             }
 
             return active.concat(this.subBinder.clearActive());
+        }
+
+        disable() {
+            this._active = false;
         }
 
         triggerTo(location, params) {
@@ -164,7 +170,7 @@
                 if (fragment.trim() !== '') {
                     let subBinder = this.subBinder;
                     if (subBinder) {
-                        subBinder.trigger(fragment, params);
+                        subBinder.triggerRoutes(fragment, params);
                     }
                 }
             }
@@ -197,12 +203,9 @@
                                 }
                             } else if (!done && !stopped) {
                                 stopped = true;
-                            }
-                            if (stopped) {
                                 cb(false);
                             }
                         }, location);
-
                     });
                 }
                 if (items === 0) {

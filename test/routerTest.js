@@ -120,7 +120,6 @@
 
         });
     });
-
     router.match(function(match) {
         //Another Route
         match('/levelA', function(match) {
@@ -159,37 +158,49 @@
 
         });
 
+        var count = 0;
         match('/levelR').to(function() {
             route.levelTestR = 'levelR'
 
         }).leave(function(done) {
             setTimeout(function() {
-                route.leavedR = 'not Triggered';
-                done(false);
+                console.log(count);
+                route.leavedR = 'not Triggered:' + count;
+                done(count);
+                count++;
             }, 300)
         });
 
         match('/levelS').to(function() {
-            route.levelNone = 'levelS'
+            route.levelS = 'levelS'
         });
 
-
+        var apply = false;
         match('/levelT', function(match) {
             match('/levelU').to(function() {
                 route.levelTestU = 'levelU'
             }).leave(function(done) {
-                setTimeout(function() {
-                    route.leavedU = 'not Triggered';
-                    done(false);
-                }, 300)
+                if (apply) {
+                    done(true);
+                } else {
+                    setTimeout(function() {
+                        route.leavedU = 'not Triggered';
+                        done(false);
+                        apply = true;
+                    }, 300);
+                }
             });
         }).to(function() {
             route.levelTestT = 'levelT';
         }).leave(function(done) {
-            setTimeout(function() {
-                route.leavedT = 'not Triggered';
+            if (apply) {
                 done(true);
-            }, 200)
+            } else {
+                setTimeout(function() {
+                    route.leavedT = 'not Triggered';
+                    done(true);
+                }, 200)
+            }
         });
 
         match('/levelV').to(function() {
@@ -282,6 +293,7 @@
 
                 it('levelA/levelR lazy route triggered should equal to levelR and id = 35', function() {
                     router.trigger('/levelA/levelR/35');
+                    console.log(route);
                     expect(route).to.deep.equal({
                         levelA:   'levelA',
                         levelACh: 'levelACh',
@@ -291,6 +303,7 @@
                 });
                 it('levelA/levelR lazy route triggered should equal to levelR and id = 36', function() {
                     router.trigger('/levelA/levelR/36');
+                    console.log(route);
                     expect(route).to.deep.equal({levelR: 'levelR: 36'});
 
                 });
@@ -348,6 +361,7 @@
 
                 it('levelR route triggered but Leave not accepted', function(done) {
                     router.trigger('/levelR');
+                    console.log(route);
                     expect(route).to.deep.equal({
                         levelTestR:  'levelR',
                         levelAleave: 'levelAleave'
@@ -357,14 +371,27 @@
                         listener.remove();
                     });
                     router.trigger('/levelS');
+
                     setTimeout(function() {
+                        console.log(route);
                         expect(route).to.deep.equal({
                             levelTestR:  'levelR',
-                            leavedR:     'not Triggered',
+                            leavedR:     'not Triggered:0',
                             levelAleave: 'levelAleave'
                         });
-                        done();
+                        router.trigger('/levelS');
+                        setTimeout(function() {
+                            console.log(route);
+                            expect(route).to.deep.equal({
+                                levelTestR:  'levelR',
+                                leavedR:     'not Triggered:1',
+                                levelAleave: 'levelAleave',
+                                levelS:      'levelS'
+                            });
+                            done();
+                        }, 310)
                     }, 310);
+
                 });
 
                 it('levelT/levelU route triggered but Leave not accepted', function(done) {
@@ -407,7 +434,7 @@
                         listId:       '35',
                         listLocation: 'levelB/a/b/c/list'
                     };
-
+                    console.log(route);
                     expect(route).to.deep.equal(compare);
                 });
                 it('levelB/a/b/c/list/36 route triggered, only id is changed', function() {
@@ -427,7 +454,6 @@
 
                     setTimeout(function() {
                         var compare = {listLeavea: 'leave200', listLeave: 'leave'}
-                        console.log(route);
                         expect(route).to.deep.equal(compare)
                     }, 210);
 

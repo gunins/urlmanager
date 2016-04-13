@@ -65,25 +65,61 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }, {
             key: 'trigger',
             value: function trigger(location) {
-                var _this = this;
-
                 if (this.started && location) {
                     this.started = false;
                     this.currLocation = location;
                     var parts = location.split('?', 2),
                         segments = this.getLocation(parts[0]);
-
                     if (segments || segments === '') {
                         var query = utils.setQuery(parts[1]),
                             params = {
                             root: segments,
                             query: query
                         };
-                        this.root.trigger(segments, params, function (move) {
-                            _this.setLocation(move ? location : _this.prevLocation);
-                            _this.prevLocation = location;
-                            _this.started = true;
+                        this.execute(segments, params);
+                    }
+                }
+            }
+        }, {
+            key: 'execute',
+            value: function execute(location, params) {
+                var _this = this;
+
+                var matched = location.replace(/^\/|$/g, '').split('/'),
+                    binder = this.root,
+                    active = binder.checkStatus(matched, params),
+                    move = function move(_move) {
+                    var loc = _move ? _this.currLocation : _this.prevLocation;
+                    _this.setLocation(loc);
+                    _this.prevLocation = loc;
+                    _this.started = true;
+                };
+                if (active.length > 0) {
+                    active.forEach(function (item) {
+                        item.handler(function (applied) {
+                            if (!item.triggered) {
+                                item.triggered = true;
+                                item.applied = applied;
+                                if (active.filter(function (item) {
+                                    return item.applied;
+                                }).length === active.length) {
+                                    active.forEach(function (item) {
+                                        return item.disable();
+                                    });
+                                    binder.triggerRoutes(location, params);
+                                    move(true);
+                                } else if (active.filter(function (item) {
+                                    return item.triggered;
+                                }).length === active.length) {
+                                    move(false);
+                                }
+                            }
                         });
+                    });
+                } else {
+                    binder.triggerRoutes(location, params);
+                    if (move) {
+                        move(true);
                     }
                 }
             }

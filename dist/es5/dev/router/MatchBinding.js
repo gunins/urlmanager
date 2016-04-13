@@ -158,11 +158,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             value: function clearActive(params) {
                 var active = [];
                 if (this._active) {
-                    active.push(this.triggerLeave(params));
-                    this._active = false;
+                    active.push({
+                        handler: this.triggerLeave(params),
+                        disable: this.disable.bind(this)
+                    });
                 }
 
                 return active.concat(this.subBinder.clearActive());
+            }
+        }, {
+            key: 'disable',
+            value: function disable() {
+                this._active = false;
             }
         }, {
             key: 'triggerTo',
@@ -183,7 +190,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                     if (fragment.trim() !== '') {
                         var subBinder = this.subBinder;
                         if (subBinder) {
-                            subBinder.trigger(fragment, params);
+                            subBinder.triggerRoutes(fragment, params);
                         }
                     }
                 }
@@ -226,8 +233,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                                     }
                                 } else if (!done && !stopped) {
                                     stopped = true;
-                                }
-                                if (stopped) {
                                     cb(false);
                                 }
                             }, location);

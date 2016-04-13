@@ -84,37 +84,7 @@
             }
         };
 
-        trigger(location, params, move) {
-            if (this.bindings.size > 0) {
-                let matched = location.replace(/^\/|$/g, '').split('/'),
-                    active = this.checkStatus(matched, params);
-                if (active.length > 0) {
-                    let index = 0;
-                    active.forEach((fn)=> {
-                        fn((applied)=> {
-                            if (applied) {
-                                index++;
-                            } else if (move) {
-                                move(false);
-                            }
-                            if (active.length === index) {
-                                this.triggerRoutes(location, params);
-                                if (move) {
-                                    move(true);
-                                }
-
-                            }
-                        });
-
-                    });
-                } else {
-                    this.triggerRoutes(location, params);
-                    if (move) {
-                        move(true);
-                    }
-                }
-            }
-        };
+     
 
         triggerRoutes(location, params) {
             if (this.bindings.size > 0) {

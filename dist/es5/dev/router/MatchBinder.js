@@ -100,43 +100,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 }
             }
         }, {
-            key: 'trigger',
-            value: function trigger(location, params, move) {
-                var _this = this;
-
-                if (this.bindings.size > 0) {
-                    (function () {
-                        var matched = location.replace(/^\/|$/g, '').split('/'),
-                            active = _this.checkStatus(matched, params);
-                        if (active.length > 0) {
-                            (function () {
-                                var index = 0;
-                                active.forEach(function (fn) {
-                                    fn(function (applied) {
-                                        if (applied) {
-                                            index++;
-                                        } else if (move) {
-                                            move(false);
-                                        }
-                                        if (active.length === index) {
-                                            _this.triggerRoutes(location, params);
-                                            if (move) {
-                                                move(true);
-                                            }
-                                        }
-                                    });
-                                });
-                            })();
-                        } else {
-                            _this.triggerRoutes(location, params);
-                            if (move) {
-                                move(true);
-                            }
-                        }
-                    })();
-                }
-            }
-        }, {
             key: 'triggerRoutes',
             value: function triggerRoutes(location, params) {
                 if (this.bindings.size > 0) {

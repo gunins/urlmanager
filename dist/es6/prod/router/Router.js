@@ -263,11 +263,17 @@
         clearActive(params) {
             let active = [];
             if (this._active) {
-                active.push(this.triggerLeave(params));
-                this._active = false;
+                active.push({
+                    handler: this.triggerLeave(params),
+                    disable: this.disable.bind(this)
+                });
             }
 
             return active.concat(this.subBinder.clearActive());
+        }
+
+        disable() {
+            this._active = false;
         }
 
         triggerTo(location, params) {
@@ -287,7 +293,7 @@
                 if (fragment.trim() !== '') {
                     let subBinder = this.subBinder;
                     if (subBinder) {
-                        subBinder.trigger(fragment, params);
+                        subBinder.triggerRoutes(fragment, params);
                     }
                 }
             }
@@ -320,12 +326,9 @@
                                 }
                             } else if (!done && !stopped) {
                                 stopped = true;
-                            }
-                            if (stopped) {
                                 cb(false);
                             }
                         }, location);
-
                     });
                 }
                 if (items === 0) {
@@ -432,37 +435,7 @@
             }
         };
 
-        trigger(location, params, move) {
-            if (this.bindings.size > 0) {
-                let matched = location.replace(/^\/|$/g, '').split('/'),
-                    active = this.checkStatus(matched, params);
-                if (active.length > 0) {
-                    let index = 0;
-                    active.forEach((fn)=> {
-                        fn((applied)=> {
-                            if (applied) {
-                                index++;
-                            } else if (move) {
-                                move(false);
-                            }
-                            if (active.length === index) {
-                                this.triggerRoutes(location, params);
-                                if (move) {
-                                    move(true);
-                                }
-
-                            }
-                        });
-
-                    });
-                } else {
-                    this.triggerRoutes(location, params);
-                    if (move) {
-                        move(true);
-                    }
-                }
-            }
-        };
+     
 
         triggerRoutes(location, params) {
             if (this.bindings.size > 0) {
@@ -527,26 +500,58 @@
                 }
             };
 
+
             trigger(location) {
                 if (this.started && location) {
                     this.started = false;
                     this.currLocation = location;
                     let parts = location.split('?', 2),
                         segments = this.getLocation(parts[0]);
-
                     if (segments || segments === '') {
                         let query = utils.setQuery(parts[1]),
                             params = {
                                 root:  segments,
                                 query: query
                             };
-                        this.root.trigger(segments, params, (move)=> {
-                            this.setLocation(move ? location : this.prevLocation);
-                            this.prevLocation = location;
-                            this.started = true;
-                        });
+                        this.execute(segments, params);
                     }
                 }
+            };
+
+            execute(location, params) {
+                let matched = location.replace(/^\/|$/g, '').split('/'),
+                    binder = this.root,
+                    active = binder.checkStatus(matched, params),
+                    move = (move)=> {
+                        let loc = move ? this.currLocation : this.prevLocation;
+                        this.setLocation(loc);
+                        this.prevLocation = loc;
+                        this.started = true;
+                    };
+                if (active.length > 0) {
+                    active.forEach((item)=> {
+                        item.handler((applied)=> {
+                            if (!item.triggered) {
+                                item.triggered = true;
+                                item.applied = applied;
+                                if (active.filter(item=>item.applied).length === active.length) {
+                                    active.forEach(item=>item.disable());
+                                    binder.triggerRoutes(location, params);
+                                    move(true);
+                                } else if (active.filter(item=>item.triggered).length === active.length) {
+                                    move(false);
+                                }
+                            }
+                        });
+                    });
+
+                } else {
+                    binder.triggerRoutes(location, params);
+                    if (move) {
+                        move(true);
+                    }
+                }
+
             };
 
             setListener(listener) {
