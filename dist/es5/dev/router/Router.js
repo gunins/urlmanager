@@ -30,6 +30,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             }
             this.root = this.getBinder();
             this._listeners = new Set();
+            this._handlers = new Set();
         }
 
         _createClass(Router, [{
@@ -100,20 +101,29 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                                     active.forEach(function (item) {
                                         return item.disable();
                                     });
-                                    binder.triggerRoutes(location, params);
-                                    _this.setLocation(true);
+                                    _this.setRoutes(true, location, params);
                                 } else if (active.filter(function (item) {
                                     return item.triggered;
                                 }).length === active.length) {
-                                    _this.setLocation(false);
+                                    _this.setRoutes(false);
                                 }
                             }
                         });
                     });
                 } else {
-                    binder.triggerRoutes(location, params);
-                    this.setLocation(true);
+                    this.setRoutes(true, location, params);
                 }
+            }
+        }, {
+            key: 'setRoutes',
+            value: function setRoutes(move, location, params) {
+                if (move) {
+                    this._handlers.forEach(function (handler) {
+                        return handler();
+                    });
+                    this.root.triggerRoutes(location, params);
+                }
+                this.setLocation(move);
             }
         }, {
             key: 'setListener',
@@ -127,13 +137,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                 };
             }
         }, {
+            key: 'onRouteChange',
+            value: function onRouteChange(handler) {
+                var handlers = this._handlers;
+                handlers.add(handler);
+                return {
+                    remove: function remove() {
+                        handlers.delete(handler);
+                    }
+                };
+            }
+        }, {
             key: 'setLocation',
             value: function setLocation(move) {
                 var location = move ? this.currLocation : this.prevLocation;
                 this.prevLocation = location;
                 this.started = true;
                 this._listeners.forEach(function (listener) {
-                    return listener(location);
+                    return listener(location, move);
                 });
             }
         }, {

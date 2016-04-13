@@ -425,7 +425,6 @@
                         listId:       '35',
                         listLocation: 'levelB/a/b/c/list'
                     };
-                    console.log(route);
                     expect(route).to.deep.equal(compare);
                 });
                 it('levelB/a/b/c/list/36 route triggered, only id is changed', function() {

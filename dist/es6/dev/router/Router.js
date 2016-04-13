@@ -23,6 +23,7 @@
                 }
                 this.root = this.getBinder();
                 this._listeners = new Set();
+                this._handlers = new Set();
             };
 
             getBinder() {
@@ -81,19 +82,26 @@
                                 item.applied = applied;
                                 if (active.filter(item=>item.applied).length === active.length) {
                                     active.forEach(item=>item.disable());
-                                    binder.triggerRoutes(location, params);
-                                    this.setLocation(true);
+                                    this.setRoutes(true, location, params);
                                 } else if (active.filter(item=>item.triggered).length === active.length) {
-                                    this.setLocation(false);
+                                    this.setRoutes(false);
                                 }
                             }
                         });
                     });
 
                 } else {
-                    binder.triggerRoutes(location, params);
-                    this.setLocation(true);
+                    this.setRoutes(true, location, params);
                 }
+
+            };
+
+            setRoutes(move, location, params) {
+                if (move) {
+                    this._handlers.forEach(handler=>handler());
+                    this.root.triggerRoutes(location, params);
+                }
+                this.setLocation(move);
 
             };
 
@@ -107,13 +115,22 @@
                 }
             };
 
+            onRouteChange(handler) {
+                let handlers = this._handlers;
+                handlers.add(handler);
+                return {
+                    remove(){
+                        handlers.delete(handler);
+                    }
+                }
+            };
+
 
             setLocation(move) {
                 let location = move ? this.currLocation : this.prevLocation;
                 this.prevLocation = location;
                 this.started = true;
-                this._listeners.forEach(listener=>listener(location));
-
+                this._listeners.forEach(listener=>listener(location, move));
             };
 
             match(mapHandler) {

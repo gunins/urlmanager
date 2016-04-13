@@ -112,6 +112,7 @@ like Node.</p>
                 }
                 <span class="hljs-keyword">this</span>.root = <span class="hljs-keyword">this</span>.getBinder();
                 <span class="hljs-keyword">this</span>._listeners = <span class="hljs-keyword">new</span> Set();
+                <span class="hljs-keyword">this</span>._handlers = <span class="hljs-keyword">new</span> Set();
             };
 
             getBinder() {
@@ -170,19 +171,26 @@ like Node.</p>
                                 item.applied = applied;
                                 <span class="hljs-keyword">if</span> (active.filter(item=&gt;item.applied).length === active.length) {
                                     active.forEach(item=&gt;item.disable());
-                                    binder.triggerRoutes(location, params);
-                                    <span class="hljs-keyword">this</span>.setLocation(<span class="hljs-literal">true</span>);
+                                    <span class="hljs-keyword">this</span>.setRoutes(<span class="hljs-literal">true</span>, location, params);
                                 } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (active.filter(item=&gt;item.triggered).length === active.length) {
-                                    <span class="hljs-keyword">this</span>.setLocation(<span class="hljs-literal">false</span>);
+                                    <span class="hljs-keyword">this</span>.setRoutes(<span class="hljs-literal">false</span>);
                                 }
                             }
                         });
                     });
 
                 } <span class="hljs-keyword">else</span> {
-                    binder.triggerRoutes(location, params);
-                    <span class="hljs-keyword">this</span>.setLocation(<span class="hljs-literal">true</span>);
+                    <span class="hljs-keyword">this</span>.setRoutes(<span class="hljs-literal">true</span>, location, params);
                 }
+
+            };
+
+            setRoutes(move, location, params) {
+                <span class="hljs-keyword">if</span> (move) {
+                    <span class="hljs-keyword">this</span>._handlers.forEach(handler=&gt;handler());
+                    <span class="hljs-keyword">this</span>.root.triggerRoutes(location, params);
+                }
+                <span class="hljs-keyword">this</span>.setLocation(move);
 
             };
 
@@ -196,13 +204,22 @@ like Node.</p>
                 }
             };
 
+            onRouteChange(handler) {
+                <span class="hljs-keyword">let</span> handlers = <span class="hljs-keyword">this</span>._handlers;
+                handlers.add(handler);
+                <span class="hljs-keyword">return</span> {
+                    remove(){
+                        handlers.delete(handler);
+                    }
+                }
+            };
+
 
             setLocation(move) {
                 <span class="hljs-keyword">let</span> location = move ? <span class="hljs-keyword">this</span>.currLocation : <span class="hljs-keyword">this</span>.prevLocation;
                 <span class="hljs-keyword">this</span>.prevLocation = location;
                 <span class="hljs-keyword">this</span>.started = <span class="hljs-literal">true</span>;
-                <span class="hljs-keyword">this</span>._listeners.forEach(listener=&gt;listener(location));
-
+                <span class="hljs-keyword">this</span>._listeners.forEach(listener=&gt;listener(location, move));
             };
 
             match(mapHandler) {
