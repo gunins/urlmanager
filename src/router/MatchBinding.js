@@ -185,7 +185,7 @@
         };
 
         triggerLeave(params) {
-            return (cb)=> {
+            return new Promise((resolve)=> {
                 let handlers = this.leaveHandler,
                     location = utils.getLocation(params, this.prevLoc),
                     items = 0,
@@ -199,19 +199,19 @@
                             if (done) {
                                 items--;
                                 if (items === 0 && !stopped) {
-                                    cb(true);
+                                    resolve(true);
                                 }
                             } else if (!done && !stopped) {
                                 stopped = true;
-                                cb(false);
+                                resolve(false);
                             }
                         }, location);
                     });
                 }
                 if (items === 0) {
-                    cb(true);
+                    resolve(true);
                 }
-            }
+            });
         };
 
 
