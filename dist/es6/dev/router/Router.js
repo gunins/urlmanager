@@ -55,7 +55,7 @@
 
             trigger(location) {
                 if (this.started && location) {
-                    this.started = false;
+                    // this.started = false;
                     this.currLocation = location;
                     let parts = location.split('?', 2),
                         segments = this.getLocation(parts[0]);
@@ -65,35 +65,37 @@
                                 root:  segments,
                                 query: query
                             };
-                        this.execute(segments, params);
+                        this.execute(segments, params)
+                            .then(move=>this.setRoutes(move, segments, params))
+                            .then(move=> this.setLocation(move));
                     }
                 }
             };
 
             execute(location, params) {
-                let matched = location.replace(/^\/|$/g, '').split('/'),
-                    binder = this.root,
-                    active = binder.checkStatus(matched, params);
-                if (active.length > 0) {
-                    active.forEach((item)=> {
-                        item.handler((applied)=> {
-                            if (!item.triggered) {
-                                item.triggered = true;
-                                item.applied = applied;
-                                if (active.filter(item=>item.applied).length === active.length) {
-                                    active.forEach(item=>item.disable());
-                                    this.setRoutes(true, location, params);
-                                } else if (active.filter(item=>item.triggered).length === active.length) {
-                                    this.setRoutes(false);
+                return new Promise((resolve)=> {
+                    let matched = location.replace(/^\/|$/g, '').split('/'),
+                        binder = this.root,
+                        active = binder.checkStatus(matched, params);
+                    if (active.length > 0) {
+                        active.forEach((item)=> {
+                            item.handler.then((applied)=> {
+                                if (!item.triggered) {
+                                    item.triggered = true;
+                                    item.applied = applied;
+                                    if (active.filter(item=>item.applied).length === active.length) {
+                                        active.forEach(item=>item.disable());
+                                        resolve(true);
+                                    } else if (active.filter(item=>item.triggered).length === active.length) {
+                                        resolve(false);
+                                    }
                                 }
-                            }
+                            });
                         });
-                    });
-
-                } else {
-                    this.setRoutes(true, location, params);
-                }
-
+                    } else {
+                        resolve(true);
+                    }
+                });
             };
 
             setRoutes(move, location, params) {
@@ -101,8 +103,7 @@
                     this._handlers.forEach(handler=>handler());
                     this.root.triggerRoutes(location, params);
                 }
-                this.setLocation(move);
-
+                return move;
             };
 
             setListener(listener) {
@@ -129,7 +130,7 @@
             setLocation(move) {
                 let location = move ? this.currLocation : this.prevLocation;
                 this.prevLocation = location;
-                this.started = true;
+                // this.started = true;
                 this._listeners.forEach(listener=>listener(location, move));
             };
 

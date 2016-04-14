@@ -66,53 +66,65 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }, {
             key: 'trigger',
             value: function trigger(location) {
+                var _this = this;
+
                 if (this.started && location) {
-                    this.started = false;
-                    this.currLocation = location;
-                    var parts = location.split('?', 2),
-                        segments = this.getLocation(parts[0]);
-                    if (segments || segments === '') {
-                        var query = utils.setQuery(parts[1]),
-                            params = {
-                            root: segments,
-                            query: query
-                        };
-                        this.execute(segments, params);
-                    }
+                    (function () {
+                        // this.started = false;
+                        _this.currLocation = location;
+                        var parts = location.split('?', 2),
+                            segments = _this.getLocation(parts[0]);
+                        if (segments || segments === '') {
+                            (function () {
+                                var query = utils.setQuery(parts[1]),
+                                    params = {
+                                    root: segments,
+                                    query: query
+                                };
+                                _this.execute(segments, params).then(function (move) {
+                                    return _this.setRoutes(move, segments, params);
+                                }).then(function (move) {
+                                    return _this.setLocation(move);
+                                });
+                            })();
+                        }
+                    })();
                 }
             }
         }, {
             key: 'execute',
             value: function execute(location, params) {
-                var _this = this;
+                var _this2 = this;
 
-                var matched = location.replace(/^\/|$/g, '').split('/'),
-                    binder = this.root,
-                    active = binder.checkStatus(matched, params);
-                if (active.length > 0) {
-                    active.forEach(function (item) {
-                        item.handler(function (applied) {
-                            if (!item.triggered) {
-                                item.triggered = true;
-                                item.applied = applied;
-                                if (active.filter(function (item) {
-                                    return item.applied;
-                                }).length === active.length) {
-                                    active.forEach(function (item) {
-                                        return item.disable();
-                                    });
-                                    _this.setRoutes(true, location, params);
-                                } else if (active.filter(function (item) {
-                                    return item.triggered;
-                                }).length === active.length) {
-                                    _this.setRoutes(false);
+                return new Promise(function (resolve) {
+                    var matched = location.replace(/^\/|$/g, '').split('/'),
+                        binder = _this2.root,
+                        active = binder.checkStatus(matched, params);
+                    if (active.length > 0) {
+                        active.forEach(function (item) {
+                            item.handler.then(function (applied) {
+                                if (!item.triggered) {
+                                    item.triggered = true;
+                                    item.applied = applied;
+                                    if (active.filter(function (item) {
+                                        return item.applied;
+                                    }).length === active.length) {
+                                        active.forEach(function (item) {
+                                            return item.disable();
+                                        });
+                                        resolve(true);
+                                    } else if (active.filter(function (item) {
+                                        return item.triggered;
+                                    }).length === active.length) {
+                                        resolve(false);
+                                    }
                                 }
-                            }
+                            });
                         });
-                    });
-                } else {
-                    this.setRoutes(true, location, params);
-                }
+                    } else {
+                        resolve(true);
+                    }
+                });
             }
         }, {
             key: 'setRoutes',
@@ -123,7 +135,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                     });
                     this.root.triggerRoutes(location, params);
                 }
-                this.setLocation(move);
+                return move;
             }
         }, {
             key: 'setListener',
@@ -152,7 +164,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             value: function setLocation(move) {
                 var location = move ? this.currLocation : this.prevLocation;
                 this.prevLocation = location;
-                this.started = true;
+                // this.started = true;
                 this._listeners.forEach(function (listener) {
                     return listener(location, move);
                 });

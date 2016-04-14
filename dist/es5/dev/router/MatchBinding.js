@@ -213,7 +213,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             value: function triggerLeave(params) {
                 var _this2 = this;
 
-                return function (cb) {
+                return new Promise(function (resolve) {
                     var handlers = _this2.leaveHandler,
                         location = utils.getLocation(params, _this2.prevLoc),
                         items = 0,
@@ -229,19 +229,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
                                 if (done) {
                                     items--;
                                     if (items === 0 && !stopped) {
-                                        cb(true);
+                                        resolve(true);
                                     }
                                 } else if (!done && !stopped) {
                                     stopped = true;
-                                    cb(false);
+                                    resolve(false);
                                 }
                             }, location);
                         });
                     }
                     if (items === 0) {
-                        cb(true);
+                        resolve(true);
                     }
-                };
+                });
             }
         }]);
 
