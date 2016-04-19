@@ -66,7 +66,9 @@ var check = function() {
     return true;
 }();
 
+
 var target = check ? 'es6' : 'es5';
+
 console.log('This browser version supporting: ' + target);
 
 if (window.testDev!==undefined) {

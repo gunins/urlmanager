@@ -39,7 +39,6 @@
         }
     </style>
     <script src="../../node_modules/requirejs/require.js"></script>
-    <script src="../../dist/es5/prod/babel/polyfill.js"></script>
     <script>
         require.config({
             baseUrl:'./',
@@ -47,7 +46,7 @@
 //                prod link
 //                router:'../../dist/router'
 //                dev link
-                'router/Router':'../../dist/es5/prod/router/Router'
+                router:'../../src/router'
 
             }
         });

@@ -1,6 +1,8 @@
 ## URL Manager [![Build Status](https://api.travis-ci.org/gunins/urlmanager.svg?branch=master)](https://travis-ci.org/gunins/urlmanager)
 
 Library for managing urls.
+Router is written in es6. In dist folder also available compiled es5 package.
+
 
 ## Why "URL Manager"
 
@@ -31,17 +33,7 @@ using `AMD`
         router.start();
     });
 
-Using as global in html file add.
 
-    <script src="node_modules/urlmanager/prod/Router"></script>
-
-In Code use
-
-    <script>
-        var router = new UrlManager.Router();
-         ... Routes Goes here ...
-        router.start();
-    </script>
 
 ### Route triggering
 
