@@ -71,13 +71,14 @@ var target = check ? 'es6' : 'es5';
 
 console.log('This browser version supporting: ' + target);
 
-if (window.testDev!==undefined) {
+if (window.testDev !== undefined) {
 
     require.config({
-        baseUrl: '../src', // '../dist/'+target+'/prod',
+        baseUrl: '../dist/'+target+'/dev',
         paths:   {
-            test: '../test',
-            chai: "../node_modules/chai/chai"
+            test:             '../../../test',
+            chai:             "../../../node_modules/chai/chai",
+
         }
     });
 } else {
@@ -85,7 +86,8 @@ if (window.testDev!==undefined) {
         baseUrl: '../dist/' + target + '/prod',
         paths:   {
             test: '../../../test',
-            chai: "../../../node_modules/chai/chai"
+            chai: "../../../node_modules/chai/chai",
+
         }
     });
 }

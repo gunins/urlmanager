@@ -1,13 +1,15 @@
 module.exports = function(grunt) {
 
     grunt.initConfig({
-        pkg:                   grunt.file.readJSON('package.json'),
-        clean:                 ['target', 'dist', 'tmp'],
-        exec:                  {
-            npmpack: 'npm pack dist',
-            publish: 'npm publish dist'
+        pkg:             grunt.file.readJSON('package.json'),
+        clean:           ['target', 'dist', 'tmp'],
+        exec:            {
+            npmpack:   'npm pack dist',
+            publish:   'npm publish dist',
+            uglifyES6: './node_modules/.bin/uglifyjs target/es6/prod/router/Router.js -o target/es6/prod/router/Router.js -m -c'
+
         },
-        requirejs:             {
+        requirejs:       {
             prod: {
                 options: {
                     baseUrl:        'src',
@@ -28,7 +30,7 @@ module.exports = function(grunt) {
                 }
             }
         },
-        copy:                  {
+        copy:            {
             prod: {
                 files: [
                     {expand: true, cwd: './', src: ['package.json', 'bower.json', 'README.md'], dest: 'dist'},
@@ -36,15 +38,20 @@ module.exports = function(grunt) {
 
                 ]
             },
-            dev:{
-                files:[
+            dev:  {
+                files: [
                     {expand: true, cwd: './src', src: ['./**'], dest: 'target/es6/dev'},
-                    {expand: true, cwd: './node_modules/babel-polyfill/dist/', src: ['polyfill.js'], dest: 'target/es6/dev/babel'}
+                    {
+                        expand: true,
+                        cwd:    './node_modules/babel-polyfill/dist/',
+                        src:    ['polyfill.js'],
+                        dest:   'target/es6/dev/babel'
+                    }
                 ]
             }
-            
+
         },
-        babel:                 {
+        babel:           {
             options: {
                 presets: ['es2015'],
                 compact: false
@@ -72,7 +79,7 @@ module.exports = function(grunt) {
                 }]
             }
         },
-        uglify:                {
+        uglify:          {
             options:  {
                 banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
             },
@@ -88,7 +95,7 @@ module.exports = function(grunt) {
             //main:     {src: ['target/es6/main.js'], dest: 'target/es6/main.js'}
 
         },
-        docco:                 {
+        docco:           {
             debug: {
                 src:     ['src/router/*.js'],
                 options: {
@@ -96,7 +103,7 @@ module.exports = function(grunt) {
                 }
             }
         },
-        bump:                  {
+        bump:            {
             options: {
                 files:       ['package.json', 'bower.json', 'dist/package.json', 'dist/bower.json'],
                 commit:      true,
@@ -108,16 +115,23 @@ module.exports = function(grunt) {
                 pushTo:      'origin'
             }
         },
-        mocha_require_phantom: {
-            options: {
-                base:       'test',
-                main:       'test-bootstrap',
-                requireLib: '../node_modules/requirejs/require.js',
-                files:      ['./routerTest.js']
+        mocha_phantomjs: {
+            dev:  {
+                options: {
+                    urls: [
+                        'http://localhost:8000/test/indexdev.html'
+                    ]
+                }
             },
-            target:  {}
+            prod: {
+                options: {
+                    urls: [
+                        'http://localhost:8000/test/index.html'
+                    ]
+                }
+            }
         },
-        mochaTest:             {
+        mochaTest:       {
             options: {
                 reporter:          'spec',
                 captureFile:       'target/results.txt', // Optionally capture the reporter output to a file
@@ -128,21 +142,18 @@ module.exports = function(grunt) {
                 src: ['test/routerTest.js']
             }
         },
-        connect:               {
-            options: {
-                keepalive: true
-            },
-            base:    {
-                hostname: "*",
-                port:     "8000",
-                target:   'http://localhost:8000/',
-                open:     true
+        connect:         {
+            server: {
+                options: {
+                    port: 8000,
+                    base: '.'
+                }
             }
         }
     });
 
     grunt.loadNpmTasks('grunt-mocha-test');
-    grunt.loadNpmTasks('grunt-mocha-require-phantom');
+    grunt.loadNpmTasks('grunt-mocha-phantomjs');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-clean');
@@ -154,8 +165,8 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-babel');
     grunt.loadNpmTasks('grunt-contrib-uglify');
 
-    grunt.registerTask('test', ['mocha_require_phantom', 'mochaTest']);
-    grunt.registerTask('default', ['clean', 'requirejs', 'copy:dev', 'babel', 'uglify', 'copy:prod', 'test', 'docco']);
+    grunt.registerTask('test', ['connect', 'mocha_phantomjs']);
+    grunt.registerTask('default', ['clean', 'requirejs', 'copy:dev', 'babel', 'uglify', 'exec:uglifyES6', 'copy:prod', 'test', 'docco']);
     grunt.registerTask('publish', ['default', 'bump', 'exec:publish']);
 
 };
