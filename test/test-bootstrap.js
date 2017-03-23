@@ -72,12 +72,20 @@ var target = check ? 'es6' : 'es5';
 console.log('This browser version supporting: ' + target);
 
 if (window.testDev !== undefined) {
-
     require.config({
-        baseUrl: '../dist/'+target+'/dev',
+        baseUrl: '../dist/' + target + '/dev',
         paths:   {
-            test:             '../../../test',
-            chai:             "../../../node_modules/chai/chai",
+            test: '../../../test',
+            chai: "../../../node_modules/chai/chai",
+
+        }
+    });
+} else if (window.testSrc !== undefined) {
+    require.config({
+        baseUrl: '../src',
+        paths:   {
+            test: '../test',
+            chai: "../node_modules/chai/chai",
 
         }
     });
@@ -98,13 +106,15 @@ mocha.setup({
 });
 
 mocha.ui('bdd');
+
 testEs6(function run() {
         require([
             testPathname
         ], function() {
-
             if (window.mochaPhantomJS) {
-                window.mochaPhantomJS.run();
+                setTimeout(function() {
+                    window.mochaPhantomJS.run();
+                }, 200);
             }
             else {
                 mocha.run();

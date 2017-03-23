@@ -127,7 +127,7 @@ like Node.</p>
 
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">iterateQueryString</span><span class="hljs-params">(queryString, callback)</span> </span>{
         <span class="hljs-keyword">let</span> keyValues = queryString.split(<span class="hljs-string">'&amp;'</span>);
-        keyValues.forEach((keyValue)=&gt; {
+        keyValues.forEach((keyValue) =&gt; {
             <span class="hljs-keyword">let</span> arr = keyValue.split(<span class="hljs-string">'='</span>);
             callback(arr.shift(), arr.join(<span class="hljs-string">'='</span>));
         });
@@ -136,7 +136,7 @@ like Node.</p>
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">setQuery</span><span class="hljs-params">(parts)</span> </span>{
         <span class="hljs-keyword">let</span> query = {};
         <span class="hljs-keyword">if</span> (parts) {
-            iterateQueryString(parts, (name, value)=&gt; {
+            iterateQueryString(parts, (name, value) =&gt; {
                 value = parseParams(value);
                 <span class="hljs-keyword">if</span> (!query[name]) {
                     query[name] = value;
@@ -289,10 +289,15 @@ like Node.</p>
         ARGUMENT_NAMES = <span class="hljs-regexp">/(?:^|,)\s*([^\s,=]+)/g</span>;
 
     <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getArgs</span><span class="hljs-params">(func)</span> </span>{
-        <span class="hljs-keyword">let</span> fnStr = func.toString().replace(STRIP_COMMENTS, <span class="hljs-string">''</span>),
-            argsList = fnStr.slice(fnStr.indexOf(<span class="hljs-string">'('</span>) + <span class="hljs-number">1</span>, fnStr.indexOf(<span class="hljs-string">')'</span>)),
+        <span class="hljs-keyword">let</span> oneOf = (...patterns) =&gt; (string, pos) =&gt; patterns
+                .map(pattern =&gt; string.indexOf(pattern))
+                .filter(index =&gt; index === pos).length &gt; <span class="hljs-number">0</span>,
+            fnStr = func.toString().replace(STRIP_COMMENTS, <span class="hljs-string">''</span>),
+            first = oneOf(<span class="hljs-string">'('</span>, <span class="hljs-string">'function ('</span>, <span class="hljs-string">'function('</span>)(fnStr, <span class="hljs-number">0</span>) ? fnStr.indexOf(<span class="hljs-string">'('</span>) + <span class="hljs-number">1</span> : <span class="hljs-number">0</span>,
+            last = !oneOf(<span class="hljs-string">'=&gt;'</span>)(fnStr, -<span class="hljs-number">1</span>) ? fnStr.indexOf(<span class="hljs-string">'=&gt;'</span>) : fnStr.indexOf(<span class="hljs-string">')'</span>),
+            argsList = fnStr.slice(first, last).trim(),
             result = argsList.match(ARGUMENT_NAMES);
-        <span class="hljs-keyword">return</span> (result === <span class="hljs-literal">null</span>) ? [] : result.map(item=&gt;item.replace(<span class="hljs-regexp">/[\s,]/g</span>, <span class="hljs-string">''</span>));
+        <span class="hljs-keyword">return</span> (result === <span class="hljs-literal">null</span>) ? [] : result.map(item =&gt; item.replace(<span class="hljs-regexp">/[\s,]/g</span>, <span class="hljs-string">''</span>));
     }
 
     <span class="hljs-keyword">return</span> {

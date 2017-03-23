@@ -108,8 +108,23 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         ARGUMENT_NAMES = /(?:^|,)\s*([^\s,=]+)/g;
 
     function getArgs(func) {
-        var fnStr = func.toString().replace(STRIP_COMMENTS, ''),
-            argsList = fnStr.slice(fnStr.indexOf('(') + 1, fnStr.indexOf(')')),
+        var oneOf = function oneOf() {
+            for (var _len = arguments.length, patterns = Array(_len), _key = 0; _key < _len; _key++) {
+                patterns[_key] = arguments[_key];
+            }
+
+            return function (string, pos) {
+                return patterns.map(function (pattern) {
+                    return string.indexOf(pattern);
+                }).filter(function (index) {
+                    return index === pos;
+                }).length > 0;
+            };
+        },
+            fnStr = func.toString().replace(STRIP_COMMENTS, ''),
+            first = oneOf('(', 'function (', 'function(')(fnStr, 0) ? fnStr.indexOf('(') + 1 : 0,
+            last = !oneOf('=>')(fnStr, -1) ? fnStr.indexOf('=>') : fnStr.indexOf(')'),
+            argsList = fnStr.slice(first, last).trim(),
             result = argsList.match(ARGUMENT_NAMES);
         return result === null ? [] : result.map(function (item) {
             return item.replace(/[\s,]/g, '');
