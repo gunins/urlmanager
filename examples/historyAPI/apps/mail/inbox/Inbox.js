@@ -9,7 +9,7 @@ define(["require", "exports"], function(require, exports) {
         });
 
         var content = document.getElementById('MailAppContent');
-        content.innerHTML = '<div><h1>Inbox</h1><ul>' + '<li><a href="/' + first + '">Andrew Werber</a></li>' + '<li><a href="/' + second + '">Mat Connor</a></li>' + '</ul></div>';
+        content.innerHTML = '<div><h1>Inbox</h1><ul>' + '<li><a data-local href="/' + first + '">Andrew Werber</a></li>' + '<li><a data-local href="/' + second + '">Mat Connor</a></li>' + '</ul></div>';
     }
 
     

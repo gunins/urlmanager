@@ -16,21 +16,20 @@ define([
     class MyApplication extends Application {
         run() {
             super.run();
-            this.router.match(function (match) {
+            const {router} = this;
+            router.match(function (match) {
                 Mail.map(match('/mail'));
                 App.map(match('/app'));
                 Settings.map(match('/settings'));
             });
 
-            const onHashChange = () => {
-                this.router.trigger(window.location.pathname);
-            };
+            const onHashChange = () => router.trigger(window.location.pathname);
 
             window.addEventListener('popstate', () => onHashChange());
 
             document.body.addEventListener('click', (e) => {
                 const {target} = e;
-                if (target.tagName === 'A') {
+                if (target.dataset.local !== undefined) {
                     e.preventDefault();
                     history.pushState({}, '', target.getAttribute('href'));
                     onHashChange();
@@ -39,7 +38,6 @@ define([
 
             onHashChange();
         }
-
 
     }
 

@@ -7,7 +7,7 @@ define(["require", "exports", './Compose', './InboxRegion'], function (require, 
         var container = document.getElementById('Container');
         container.innerHTML = (query.filter ? 'Filter: ' + query.filter : '') +
                               '<table class="mailApp" width="100%"><tr valign="top"><td width="150"><ul>' +
-                              '<li><a href="/' + compose + '">Compose</a></li>' + '<li><a href="/' + inbox +
+                              '<li><a data-local href="/' + compose + '">Compose</a></li>' + '<li><a data-local href="/' + inbox +
                               '">Inbox</a></li>' +
                               '</ul></td><td><div id="MailAppContent"><h1>Mail Application</h1></div></td></tr></table>';
     }
