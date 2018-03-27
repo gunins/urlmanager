@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>TS Demo</title>
+    <style>
+        body {
+            padding: 1em 10px;
+            font: 12px Verdana;
+        }
+
+        h1 {
+            margin: 0;
+            padding: 0;
+            font-size: 13px;
+        }
+
+        ul {
+            margin: 0;
+        }
+
+        .menu {
+            background: #eee;
+            padding: 0.3em 10px;
+        }
+
+        .mailApp {
+            background: #cccccc;
+        }
+
+        .settings {
+            background: greenyellow;
+            padding: 1em 10px;
+        }
+
+        .app {
+            background: aquamarine;
+            padding: 1em 10px;
+        }
+    </style>
+    <script src="/node_modules/requirejs/require.js"></script>
+    <script src="/dist/es5/prod/babel/polyfill.js"></script>
+    <script>
+        require.config({
+            baseUrl:'/',
+            paths:{
+//                prod link
+//                router:'../../dist/router'
+//                dev link
+                'router/Router':'/dist/es5/prod/router/Router'
+
+            }
+        });
+    </script>
+</head>
+<body>
+<div class="menu">
+    <a href="/mail">Mail</a>
+    <span> | </span>
+    <a href="/app">Application</a>
+    <span> | </span>
+    <a href="/settings">Settings</a>
+</div>
+<div id="Container"></div>
+<script>
+    require([
+        'router/Router',
+        'apps/main'
+    ], function (Router, Apps) {
+
+        var router = new Router;
+        var apps = new Apps(router);
+        apps.run();
+
+    });
+</script>
+</body>
+</html>

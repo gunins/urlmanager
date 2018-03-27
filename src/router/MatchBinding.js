@@ -159,7 +159,7 @@
                 if (!this._active) {
                     this.prevLoc = location;
                     let args = this.extractParams(location).concat(utils.getLocation(params, location));
-                    this.applyHandlers(this.routeHandler, args)
+                    this.applyHandlers(this.routeHandler, args);
                     this._active = true;
                 }
 
