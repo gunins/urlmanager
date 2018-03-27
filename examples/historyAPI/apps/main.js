@@ -1,15 +1,3 @@
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) {
-        d[p] = b[p];
-    }
-
-    function __() {
-        this.constructor = d;
-    }
-
-    __.prototype = b.prototype;
-    d.prototype  = new __();
-};
 define([
            './mail/Mail', './settings/Settings', './app/App', '../common/Application'
        ], function (Mail, Settings, App, Application) {
