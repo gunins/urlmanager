@@ -61,7 +61,7 @@
               
             </div>
             
-            <div class="content"><div class='highlight'><pre>(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(root, factory)</span> </span>{
+            <div class="content"><div class='highlight'><pre>(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">root, factory</span>) </span>{
 
     <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> define === <span class="hljs-string">'function'</span> &amp;&amp; define.amd) {</pre></div></div>
             
@@ -117,13 +117,13 @@ like Node.</p>
             <div class="content"><div class='highlight'><pre>        root.UrlManager = root.UrlManager || {};
         root.UrlManager.MatchBinder = factory(root.UrlManager.MatchBinding);
     }
-}(<span class="hljs-keyword">this</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(MatchBinding)</span> </span>{
-<span class="hljs-pi">    'use strict'</span>;
+}(<span class="hljs-keyword">this</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">MatchBinding</span>) </span>{
+<span class="hljs-meta">    'use strict'</span>;
 
-    <span class="hljs-keyword">class</span> MatchBinder {
-        constructor(location, parent) {
+    <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MatchBinder</span> </span>{
+        <span class="hljs-keyword">constructor</span>(location, parent) {
             <span class="hljs-keyword">this</span>._parent = parent;
-            <span class="hljs-keyword">this</span>.bindings = <span class="hljs-keyword">new</span> Set();
+            <span class="hljs-keyword">this</span>.bindings = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Set</span>();
             <span class="hljs-keyword">this</span>.location = location || <span class="hljs-string">''</span>;
             <span class="hljs-keyword">this</span>._active = <span class="hljs-literal">false</span>;
 
@@ -155,7 +155,7 @@ like Node.</p>
                     mapHandler(<span class="hljs-keyword">this</span>.match.bind(<span class="hljs-keyword">this</span>));
                 }
                 <span class="hljs-keyword">return</span> {
-                    match: <span class="hljs-keyword">this</span>.match.bind(<span class="hljs-keyword">this</span>)
+                    <span class="hljs-attr">match</span>: <span class="hljs-keyword">this</span>.match.bind(<span class="hljs-keyword">this</span>)
                 }
             }
         };
@@ -163,7 +163,7 @@ like Node.</p>
         clearActive(params, location) {
             <span class="hljs-keyword">let</span> active = [];
             <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.bindings.size &gt; <span class="hljs-number">0</span>) {
-                <span class="hljs-keyword">this</span>.bindings.forEach((binding)=&gt; {
+                <span class="hljs-keyword">this</span>.bindings.forEach(<span class="hljs-function">(<span class="hljs-params">binding</span>)=&gt;</span> {
                     active = active.concat(binding.clearActive(params, location));
                 });
             }
@@ -173,7 +173,7 @@ like Node.</p>
         checkStatus(matched, params) {
             <span class="hljs-keyword">let</span> active = []
             <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.bindings.size &gt; <span class="hljs-number">0</span>) {
-                <span class="hljs-keyword">this</span>.bindings.forEach((binding)=&gt; {
+                <span class="hljs-keyword">this</span>.bindings.forEach(<span class="hljs-function">(<span class="hljs-params">binding</span>)=&gt;</span> {
                     active = active.concat(binding.checkSegment(matched, params));
                 });
             }
@@ -182,7 +182,7 @@ like Node.</p>
 
         remove() {
             <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.bindings.size &gt; <span class="hljs-number">0</span>) {
-                <span class="hljs-keyword">this</span>.bindings.forEach((binding)=&gt; binding.remove());
+                <span class="hljs-keyword">this</span>.bindings.forEach(<span class="hljs-function">(<span class="hljs-params">binding</span>)=&gt;</span> binding.remove());
             }
         };
 
@@ -190,7 +190,7 @@ like Node.</p>
 
         triggerRoutes(location, params) {
             <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.bindings.size &gt; <span class="hljs-number">0</span>) {
-                <span class="hljs-keyword">this</span>.bindings.forEach(binding=&gt;binding.triggerTo(location, params))
+                <span class="hljs-keyword">this</span>.bindings.forEach(<span class="hljs-function"><span class="hljs-params">binding</span>=&gt;</span>binding.triggerTo(location, params))
             }
         }
     }

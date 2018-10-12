@@ -1,6 +1,6 @@
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 /*globals define*/
 (function (root, factory) {
@@ -67,7 +67,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 return params.query;
             },
             getLocation: function getLocation() {
-                var fragment = arguments.length <= 0 || arguments[0] === undefined ? '' : arguments[0];
+                var fragment = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
                 var isQuery = arguments[1];
 
                 var current = params.root.substring(0, params.root.length - pattern.length),

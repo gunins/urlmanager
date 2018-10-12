@@ -1,6 +1,6 @@
 "use strict";
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 (function e(t, n, r) {
   function s(o, u) {
@@ -113,10 +113,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
           if (value != value) return true;
           // Array#toIndex ignores holes, Array#includes - not
         } else for (; length > index; index++) {
-            if (IS_INCLUDES || index in O) {
-              if (O[index] === el) return IS_INCLUDES || index;
-            }
-          }return !IS_INCLUDES && -1;
+          if (IS_INCLUDES || index in O) {
+            if (O[index] === el) return IS_INCLUDES || index;
+          }
+        }return !IS_INCLUDES && -1;
       };
     };
   }, { "77": 77, "79": 79, "80": 80 }], 9: [function (_dereq_, module, exports) {
@@ -332,20 +332,20 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
           entry.v = value;
           // create new entry
         } else {
-            that._l = entry = {
-              i: index = fastKey(key, true), // <- index
-              k: key, // <- key
-              v: value, // <- value
-              p: prev = that._l, // <- previous entry
-              n: undefined, // <- next entry
-              r: false // <- removed
-            };
-            if (!that._f) that._f = entry;
-            if (prev) prev.n = entry;
-            that[SIZE]++;
-            // add to index
-            if (index !== 'F') that._i[index] = entry;
-          }return that;
+          that._l = entry = {
+            i: index = fastKey(key, true), // <- index
+            k: key, // <- key
+            v: value, // <- value
+            p: prev = that._l, // <- previous entry
+            n: undefined, // <- next entry
+            r: false // <- removed
+          };
+          if (!that._f) that._f = entry;
+          if (prev) prev.n = entry;
+          that[SIZE]++;
+          // add to index
+          if (index !== 'F') that._i[index] = entry;
+        }return that;
       },
       getEntry: getEntry,
       setStrong: function setStrong(C, NAME, IS_MAP) {
@@ -436,7 +436,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
           return it[0] === key;
         });
         if (~index) this.a.splice(index, 1);
-        return !! ~index;
+        return !!~index;
       }
     };
 
@@ -1079,24 +1079,24 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       };
       // browsers with MutationObserver
     } else if (Observer) {
-        var toggle = 1,
-            node = document.createTextNode('');
-        new Observer(flush).observe(node, { characterData: true }); // eslint-disable-line no-new
-        notify = function notify() {
-          node.data = toggle = -toggle;
-        };
-        // for other environments - macrotask based on:
-        // - setImmediate
-        // - MessageChannel
-        // - window.postMessag
-        // - onreadystatechange
-        // - setTimeout
-      } else {
-          notify = function notify() {
-            // strange IE + webpack dev server bug - use .call(global)
-            macrotask.call(global, flush);
-          };
-        }
+      var toggle = 1,
+          node = document.createTextNode('');
+      new Observer(flush).observe(node, { characterData: true }); // eslint-disable-line no-new
+      notify = function notify() {
+        node.data = toggle = -toggle;
+      };
+      // for other environments - macrotask based on:
+      // - setImmediate
+      // - MessageChannel
+      // - window.postMessag
+      // - onreadystatechange
+      // - setTimeout
+    } else {
+      notify = function notify() {
+        // strange IE + webpack dev server bug - use .call(global)
+        macrotask.call(global, flush);
+      };
+    }
 
     module.exports = function asap(fn) {
       var task = { fn: fn, next: undefined, domain: isNode && process.domain };
@@ -1417,9 +1417,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     var $def = _dereq_(19),
         defined = _dereq_(20),
         fails = _dereq_(25),
-        spaces = "\t\n\u000b\f\r   ᠎    " + "         　\u2028\u2029﻿",
+        spaces = "\t\n\x0B\f\r \xA0\u1680\u180E\u2000\u2001\u2002\u2003" + "\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000\u2028\u2029\uFEFF",
         space = '[' + spaces + ']',
-        non = "​",
+        non = "\u200B\x85",
         ltrim = RegExp('^' + space + space + '*'),
         rtrim = RegExp(space + space + '*$');
 
@@ -1494,31 +1494,31 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         };
         // Browsers with MessageChannel, includes WebWorkers
       } else if (MessageChannel) {
-          channel = new MessageChannel();
-          port = channel.port2;
-          channel.port1.onmessage = listner;
-          defer = ctx(port.postMessage, port, 1);
-          // Browsers with postMessage, skip WebWorkers
-          // IE8 has postMessage, but it's sync & typeof its postMessage is 'object'
-        } else if (global.addEventListener && typeof postMessage == 'function' && !global.importScripts) {
-            defer = function defer(id) {
-              global.postMessage(id + '', '*');
-            };
-            global.addEventListener('message', listner, false);
-            // IE8-
-          } else if (ONREADYSTATECHANGE in cel('script')) {
-              defer = function defer(id) {
-                html.appendChild(cel('script'))[ONREADYSTATECHANGE] = function () {
-                  html.removeChild(this);
-                  run.call(id);
-                };
-              };
-              // Rest old browsers
-            } else {
-                defer = function defer(id) {
-                  setTimeout(ctx(run, id, 1), 0);
-                };
-              }
+        channel = new MessageChannel();
+        port = channel.port2;
+        channel.port1.onmessage = listner;
+        defer = ctx(port.postMessage, port, 1);
+        // Browsers with postMessage, skip WebWorkers
+        // IE8 has postMessage, but it's sync & typeof its postMessage is 'object'
+      } else if (global.addEventListener && typeof postMessage == 'function' && !global.importScripts) {
+        defer = function defer(id) {
+          global.postMessage(id + '', '*');
+        };
+        global.addEventListener('message', listner, false);
+        // IE8-
+      } else if (ONREADYSTATECHANGE in cel('script')) {
+        defer = function defer(id) {
+          html.appendChild(cel('script'))[ONREADYSTATECHANGE] = function () {
+            html.removeChild(this);
+            run.call(id);
+          };
+        };
+        // Rest old browsers
+      } else {
+        defer = function defer(id) {
+          setTimeout(ctx(run, id, 1), 0);
+        };
+      }
     }
     module.exports = {
       set: setTask,
@@ -2321,21 +2321,21 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
           third = it.charCodeAt(2);
           if (third === 88 || third === 120) return NaN; // Number('+0x1') should be NaN, old V8 fix
         } else if (first === 48) {
-            switch (it.charCodeAt(1)) {
-              case 66:case 98:
-                radix = 2;maxCode = 49;break; // fast equal /^0b[01]+$/i
-              case 79:case 111:
-                radix = 8;maxCode = 55;break; // fast equal /^0o[0-7]+$/i
-              default:
-                return +it;
-            }
-            for (var digits = it.slice(2), i = 0, l = digits.length, code; i < l; i++) {
-              code = digits.charCodeAt(i);
-              // parseInt parses a string to a first unavailable symbol
-              // but ToNumber should return NaN if a string contains unavailable symbols
-              if (code < 48 || code > maxCode) return NaN;
-            }return parseInt(digits, radix);
+          switch (it.charCodeAt(1)) {
+            case 66:case 98:
+              radix = 2;maxCode = 49;break; // fast equal /^0b[01]+$/i
+            case 79:case 111:
+              radix = 8;maxCode = 55;break; // fast equal /^0o[0-7]+$/i
+            default:
+              return +it;
           }
+          for (var digits = it.slice(2), i = 0, l = digits.length, code; i < l; i++) {
+            code = digits.charCodeAt(i);
+            // parseInt parses a string to a first unavailable symbol
+            // but ToNumber should return NaN if a string contains unavailable symbols
+            if (code < 48 || code > maxCode) return NaN;
+          }return parseInt(digits, radix);
+        }
       }return +it;
     };
 
@@ -2345,7 +2345,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             that = this;
         return that instanceof $Number
         // check on 1..constructor(foo) case
-         && (BROKEN_COF ? fails(function () {
+        && (BROKEN_COF ? fails(function () {
           proto.valueOf.call(that);
         }) : cof(that) != NUMBER) ? new Base(toNumber(it)) : toNumber(it);
       };
@@ -3231,7 +3231,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
     $def($def.P + $def.F * _dereq_(24)(INCLUDES), 'String', {
       includes: function includes(searchString /*, position = 0 */) {
-        return !! ~context(this, searchString, INCLUDES).indexOf(searchString, arguments.length > 1 ? arguments[1] : undefined);
+        return !!~context(this, searchString, INCLUDES).indexOf(searchString, arguments.length > 1 ? arguments[1] : undefined);
       }
     });
   }, { "19": 19, "24": 24, "72": 72 }], 165: [function (_dereq_, module, exports) {

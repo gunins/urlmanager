@@ -62,7 +62,7 @@
             </div>
             
             <div class="content"><div class='highlight'><pre><span class="hljs-comment">/*globals define*/</span>
-(<span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(root, factory)</span> </span>{
+(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">root, factory</span>) </span>{
 
     <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> define === <span class="hljs-string">'function'</span> &amp;&amp; define.amd) {</pre></div></div>
             
@@ -102,17 +102,17 @@ like Node.</p>
             
             <div class="content"><div class='highlight'><pre>        <span class="hljs-built_in">module</span>.exports = factory(<span class="hljs-built_in">require</span>(<span class="hljs-string">'./MatchBinder'</span>), <span class="hljs-built_in">require</span>(<span class="hljs-string">'./utils'</span>));
     }
-}(<span class="hljs-keyword">this</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(MatchBinder, utils)</span> </span>{
-<span class="hljs-pi">        'use strict'</span>;
+}(<span class="hljs-keyword">this</span>, <span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">MatchBinder, utils</span>) </span>{
+<span class="hljs-meta">        'use strict'</span>;
 
-        <span class="hljs-keyword">class</span> Router {
-            constructor(location) {
+        <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Router</span> </span>{
+            <span class="hljs-keyword">constructor</span>(location) {
                 <span class="hljs-keyword">if</span> (location !== <span class="hljs-literal">undefined</span> &amp;&amp; location !== <span class="hljs-string">''</span>) {
                     <span class="hljs-keyword">this</span>._location = location.replace(<span class="hljs-regexp">/^\/|\/$/g</span>, <span class="hljs-string">''</span>) + <span class="hljs-string">'/'</span>;
                 }
                 <span class="hljs-keyword">this</span>.root = <span class="hljs-keyword">this</span>.getBinder();
-                <span class="hljs-keyword">this</span>._listeners = <span class="hljs-keyword">new</span> Set();
-                <span class="hljs-keyword">this</span>._handlers = <span class="hljs-keyword">new</span> Set();
+                <span class="hljs-keyword">this</span>._listeners = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Set</span>();
+                <span class="hljs-keyword">this</span>._handlers = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Set</span>();
             };
 
             getBinder() {
@@ -164,31 +164,31 @@ like Node.</p>
                     <span class="hljs-keyword">if</span> (segments || segments === <span class="hljs-string">''</span>) {
                         <span class="hljs-keyword">let</span> query = utils.setQuery(parts[<span class="hljs-number">1</span>]),
                             params = {
-                                root:  segments,
-                                query: query
+                                <span class="hljs-attr">root</span>:  segments,
+                                <span class="hljs-attr">query</span>: query
                             };
                         <span class="hljs-keyword">this</span>.execute(segments, params)
-                            .then(move=&gt;<span class="hljs-keyword">this</span>.setRoutes(move, segments, params))
-                            .then(move=&gt; <span class="hljs-keyword">this</span>.setLocation(move));
+                            .then(<span class="hljs-function"><span class="hljs-params">move</span>=&gt;</span><span class="hljs-keyword">this</span>.setRoutes(move, segments, params))
+                            .then(<span class="hljs-function"><span class="hljs-params">move</span>=&gt;</span> <span class="hljs-keyword">this</span>.setLocation(move));
                     }
                 }
             };
 
             execute(location, params) {
-                <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Promise((resolve)=&gt; {
+                <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Promise</span>(<span class="hljs-function">(<span class="hljs-params">resolve</span>)=&gt;</span> {
                     <span class="hljs-keyword">let</span> matched = location.replace(<span class="hljs-regexp">/^\/|$/g</span>, <span class="hljs-string">''</span>).split(<span class="hljs-string">'/'</span>),
                         binder = <span class="hljs-keyword">this</span>.root,
                         active = binder.checkStatus(matched, params);
                     <span class="hljs-keyword">if</span> (active.length &gt; <span class="hljs-number">0</span>) {
-                        active.forEach((item)=&gt; {
-                            item.handler.then((applied)=&gt; {
+                        active.forEach(<span class="hljs-function">(<span class="hljs-params">item</span>)=&gt;</span> {
+                            item.handler.then(<span class="hljs-function">(<span class="hljs-params">applied</span>)=&gt;</span> {
                                 <span class="hljs-keyword">if</span> (!item.triggered) {
                                     item.triggered = <span class="hljs-literal">true</span>;
                                     item.applied = applied;
-                                    <span class="hljs-keyword">if</span> (active.filter(item=&gt;item.applied).length === active.length) {
-                                        active.forEach(item=&gt;item.disable());
+                                    <span class="hljs-keyword">if</span> (active.filter(<span class="hljs-function"><span class="hljs-params">item</span>=&gt;</span>item.applied).length === active.length) {
+                                        active.forEach(<span class="hljs-function"><span class="hljs-params">item</span>=&gt;</span>item.disable());
                                         resolve(<span class="hljs-literal">true</span>);
-                                    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (active.filter(item=&gt;item.triggered).length === active.length) {
+                                    } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (active.filter(<span class="hljs-function"><span class="hljs-params">item</span>=&gt;</span>item.triggered).length === active.length) {
                                         resolve(<span class="hljs-literal">false</span>);
                                     }
                                 }
@@ -202,7 +202,7 @@ like Node.</p>
 
             setRoutes(move, location, params) {
                 <span class="hljs-keyword">if</span> (move) {
-                    <span class="hljs-keyword">this</span>._handlers.forEach(handler=&gt;handler());
+                    <span class="hljs-keyword">this</span>._handlers.forEach(<span class="hljs-function"><span class="hljs-params">handler</span>=&gt;</span>handler());
                     <span class="hljs-keyword">this</span>.root.triggerRoutes(location, params);
                 }
                 <span class="hljs-keyword">return</span> move;
@@ -246,7 +246,7 @@ like Node.</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">this</span>._listeners.forEach(listener=&gt;listener(location, move));
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">this</span>._listeners.forEach(<span class="hljs-function"><span class="hljs-params">listener</span>=&gt;</span>listener(location, move));
             };
 
             match(mapHandler) {
