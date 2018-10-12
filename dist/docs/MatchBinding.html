@@ -261,7 +261,7 @@ like Node.</p>
             <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>._active) {
                     <span class="hljs-keyword">this</span>.prevLoc = location;
                     <span class="hljs-keyword">let</span> args = <span class="hljs-keyword">this</span>.extractParams(location).concat(utils.getLocation(params, location));
-                    <span class="hljs-keyword">this</span>.applyHandlers(<span class="hljs-keyword">this</span>.routeHandler, args)
+                    <span class="hljs-keyword">this</span>.applyHandlers(<span class="hljs-keyword">this</span>.routeHandler, args);
                     <span class="hljs-keyword">this</span>._active = <span class="hljs-literal">true</span>;
                 }</pre></div></div>
             
