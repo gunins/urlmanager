@@ -6,7 +6,7 @@ module.exports = function(grunt) {
         exec:            {
             npmpack:   'npm pack dist',
             publish:   'npm publish dist',
-            uglifyES6: './node_modules/.bin/uglifyjs target/es6/prod/router/Router.js -o target/es6/prod/router/Router.js -m -c'
+            uglifyES6: 'npx uglifyjs target/es6/prod/router/Router.js -o target/es6/prod/router/Router.js -m -c'
 
         },
         requirejs:       {
